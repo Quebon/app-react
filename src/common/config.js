@@ -10,8 +10,8 @@ const Config = {
 		"session_id":localStorage.getItem("qb_admin_session"),
 		"crossdomain":true
 	},
-	//getFileBasePath:"http://localhost:8080/",
-	getFileBasePath:"https:dev-app.quebon.tv/",
+	getFileBasePath:"http://localhost:8080/",
+	//getFileBasePath:"https:dev-app.quebon.tv/",
 
 	getPushStatuCss:function(id_v) {
 		if(id_v == "C") {	// 발송완료

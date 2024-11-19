@@ -19,6 +19,9 @@ export interface FileUploadProps {
   // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#accept
 	accept?: string;
 	maxFileCount?: number;
+	imageWidth?:number;
+	imageHeight?:number;
+	inputName?:String;
 }
 
 const FileUpload: React.FunctionComponent<FileUploadProps> = ({
@@ -26,7 +29,10 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 	maxFileSize,
 	value,
 	accept,
-	maxFileCount
+	imageWidth,
+	imageHeight,
+	maxFileCount,
+	inputName
 }) => {
   // the list of files to be uploaded
 	const [list, setList] = useState(value || []);
@@ -70,11 +76,6 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 				fo.parentNode.removeChild(fo);
 			}
 			for (var i = 0; i < files.length; i++) {
-				// use file.arrayBuffer() to read the file
-				// https://developer.mozilla.org/en-US/docs/Web/API/Blob/arrayBuffer
-				// While similar to the FileReader.readAsArrayBuffer() method, arrayBuffer() returns a promise rather than being an event-based API, as is the case with the FileReader interface's method.
-				// there is also the stream method: https://developer.mozilla.org/en-US/docs/Web/API/Blob/stream
-				list.splice(0, 1);
 				setList([]);
 				list.push(files[i]);
 				console.log(imgRef);
@@ -120,39 +121,8 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 					// the keys are there to take care of react warning otherwise
 						return (
 							<figure className="figure" key={i} data-id="upfile_1">
-								<img width={80} height={80} src={imgFile?imgFile:null}/>
+								<img width={imageWidth>0?imageWidth:80} height={imageHeight>0?imageHeight:80} src={imgFile?imgFile:null}/>
 							</figure>
-						//<tr key={i}>
-						//	<td key={i + ":#"}>{i + 1}</td>
-						//	<td>{item.name}</td>
-						//	<td>{item.size}</td>
-						//	<td>{item.type}</td>
-						//	<td>
-						//		{i > 0 ? (
-						//			<Button
-						//				key={i + ":up"}
-						//				variant="light"
-						//				onClick={(e) => handleUp(e, i)}
-						//			>
-						//			{String.fromCharCode(8593)}
-						//			</Button>
-						//		) : null}
-						//		{i < list.length - 1 ? (
-						//			<Button
-						//				key={i + ":down"}
-						//				variant="light"
-						//				onClick={(e) => handleDown(e, i)}
-						//			>
-						//			{String.fromCharCode(8595)}
-						//			</Button>
-						//		) : null}
-						//		<CloseButton
-						//			key={i + ":del"}
-						//			onClick={(e) => handleDelete(e, i)}
-						//		></CloseButton>
-						//		{validate(item)}
-						//	</td>
-						//</tr>
 						);
 					})}
 				</>
@@ -162,9 +132,8 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 
 	const renderFileInput = () => {
 		if (!(maxFileCount > 0) || list.length < maxFileCount) {
-			console.log("renderFileInput");
 			return (
-				<Form.Control type="file" name="upFile" id="upFile" onChange={handleOnChange} accept={accept} className="hide" ref={imgRef}/>
+				<Form.Control type="file" name={inputName != ""?inputName:"upFile"} id={inputName != ""?inputName:"upFile"} onChange={handleOnChange} accept={accept} className="hide" ref={imgRef}/>
 			);
 		}
 	};

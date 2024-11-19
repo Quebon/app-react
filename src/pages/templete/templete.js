@@ -414,7 +414,7 @@ const Templete = () => {
 									<td className="text-start">
 										<Row className="fileup__ui">
 											<Col className='col-auto'>
-												<FileUpload maxFileSize={1}></FileUpload>
+												<FileUpload maxFileSize={1} inputName={"upFile"}></FileUpload>
 											</Col>
 {
 	 (senderItem.filename != "") ?
