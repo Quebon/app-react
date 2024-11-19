@@ -1,0 +1,3 @@
+{
+  "rewrites": [{ "source": "/api/(.*)", "destination": "https://push-api.quebon.tv/api/$1" }]
+}
