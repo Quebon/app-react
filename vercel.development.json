@@ -1,3 +1,0 @@
-{
-  "rewrites": [{ "source": "/api/:path*", "destination": "https://dev-push-api.quebon.tv/api/:path*" }]
-}
