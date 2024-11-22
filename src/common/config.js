@@ -2,9 +2,7 @@ const Config = {
 	log:function(str) { 
 		console.log(str); 
 	},
-	//host_api : "http://localhost:8080/api/v1",
 	host_api : "/api/v1",
-	//host_api : "https://dev-app.quebon.tv/api/v1",
 	httpHeader : {
 		"agent":"quebon",
 		"session_id":localStorage.getItem("qb_admin_session"),

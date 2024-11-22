@@ -78,8 +78,6 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 			for (var i = 0; i < files.length; i++) {
 				setList([]);
 				list.push(files[i]);
-				console.log(imgRef);
-				console.log(imgRef.current.files);
 				const file = imgRef.current.files[0];
 				const reader = new FileReader();
 				reader.readAsDataURL(file);
