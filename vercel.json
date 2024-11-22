@@ -2,23 +2,23 @@
   "rewrites": [
     {
       "source": "/api/:path*",
-      "destination": "https://push-api.quebon.tv/api/:path*",
       "has": [
         {
           "type": "host",
           "value": "https://push.quebon.tv"
         }
-      ]
+      ],
+      "destination": "https://push-api.quebon.tv/api/:path*"
     },
     {
       "source": "/api/:path*",
-      "destination": "https://dev-push-api.quebon.tv/api/:path*",
       "has": [
         {
           "type": "host",
           "value": "https://dev-push.quebon.tv"
         }
-      ]
+      ],
+      "destination": "https://dev-push-api.quebon.tv/api/:path*"
     }
   ]
 }
