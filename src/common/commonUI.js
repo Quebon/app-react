@@ -12,6 +12,7 @@ import {
 	Tabs,
 } from "react-bootstrap";
 import {Link} from "react-router-dom";
+import Config from "../common/config";
 
 export const CommonUI = {
 	pagenationItems:(opt) => {
@@ -50,5 +51,43 @@ export const CommonUI = {
 		items.push(<Pagination.Last key={endPage + 2} data-act="page" data-id={maxPage} onClick={eventHandle}/>);
 
 		return items;
+	},
+
+	findParentNode : (base, findNodeName, findAttr) => {
+		if(base == null || base.nodeName.toUpperCase() == "BODY") {
+			return null;
+		}
+
+		let parent = base.parentNode;
+		if(parent == null) return;
+		if(findNodeName) {
+			if(parent.nodeName.toUpperCase() == findNodeName.toUpperCase()) {
+				if(findAttr) {
+					if(parent.getAttribute(findAttr)) {
+						return parent;
+					}
+					else {
+						return CommonUI.findParentNode(parent, findNodeName, findAttr);
+					}
+				}
+				else {
+					return parent;
+				}
+			}
+			else {
+				return CommonUI.findParentNode(parent, findNodeName, findAttr);
+			}
+		}
+		else if(findAttr) {
+			if(parent.getAttribute(findAttr)) {
+				return parent;
+			}
+			else {
+				return CommonUI.findParentNode(parent, findNodeName, findAttr);
+			}
+		}
+		else {
+			return null;
+		}
 	}
 }
