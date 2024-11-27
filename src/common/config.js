@@ -37,6 +37,12 @@ const Config = {
 		if(id_v == "C") {	// 발송완료
 			return "발송완료";
 		}
+		if(id_v == "S") {	// 발송완료
+			return "발송완료";
+		}
+		if(id_v == "D") {	// 수신비동의
+			return "수신비동의";
+		}
 		else if(id_v == "F") {	// 발송실패
 			return "발송실패";
 		}
@@ -74,8 +80,11 @@ const Config = {
 		if(id_v == "talk") {
 			return "알림톡";
 		}
-		else if(id_v == "E") {
+		else if(id_v == "sms") {
 			return "문자";
+		}
+		else if(id_v == "test") {
+			return "테스트";
 		}
 		else {
 			return "시스템";
