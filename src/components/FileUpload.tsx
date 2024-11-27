@@ -14,9 +14,7 @@ import appIcon from './../assets/images/temp_appIcon.png';
 export interface FileUploadProps {
 	onChange?: (files: Array<File>) => void;
 	maxFileSize?: number;
-  // need to add optional file description. user may want to add description to go with file.
 	value?: Array<File>;
-  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/file#accept
 	accept?: string;
 	maxFileCount?: number;
 	imageWidth?:number;
@@ -41,11 +39,7 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 	const imgRef = useRef();
 
 	const rerender = () => {
-		// see https://stackoverflow.com/a/67354136/147530
-		// for why we need to use slice
 		setList(list.slice());
-		// using the pattern here: https://stackoverflow.com/a/70443467/147530
-		// it is the simplest thing to do and it works
 		onChange && onChange(list);
 	};
 
@@ -89,7 +83,6 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 		}
 	};
 
-  // https://www.pluralsight.com/guides/how-to-display-tooltip-in-react-bootstrap
 	const renderTooltip = (
 		props: JSX.IntrinsicAttributes &
 			TooltipProps &
@@ -97,7 +90,6 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 	) => <Tooltip {...props}>File exceeds maximum allowable size</Tooltip>;
 
 	const validate = (file: File) => {
-		// see https://www.toptal.com/designers/htmlarrows/arrows/ for unicode for html symbols
 		if (maxFileSize && maxFileSize > 0 && file.size > maxFileSize) {
 			return (
 				<OverlayTrigger placement="top" overlay={renderTooltip}>
@@ -107,9 +99,6 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 		}
 	};
 
-  // https://stackoverflow.com/a/49482317/147530
-  // this method converts the list into an HTML table
-  // for rendering
 	const getTableBodyAsReactElement = () => {
 		if (list) {
 			return (
@@ -136,8 +125,6 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 		}
 	};
 
-  // the render method should render the list of files
-  // and display a button to choose more files
 return (
     <>
 		{renderFileInput()}

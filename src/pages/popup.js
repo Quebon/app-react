@@ -31,7 +31,7 @@ const Popup = () => {
 	const [pushMsg1Modal, setPushMsg1Modal] = useState(false);
 	const [templeteModal, setTempleteModal] = useState(false);
 	const [senderAddModal, setSenderAddModal] = useState(false);
-  
+
 	return(
 		<div className="p-4">
 			<h3 className="mb-4">팝업</h3>

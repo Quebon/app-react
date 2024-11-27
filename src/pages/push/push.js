@@ -32,19 +32,34 @@ import pushStat from '../../common/PushStat.js';
 import pushInput from '../../common/PushInput.js';
 import {CommonUI} from '../../common/commonUI';
 
+import PopupPushTest from '../../components/PopupPushTest.tsx';
+import PopupPushExcelUpload from '../../components/PopupPushExcelUpload.tsx';
+
 const Push = () => {
 	const {seq} = useParams();
 	const [today, setToday] = useState("");
 
-	const [baseNode, setBaseNode] = useState({object:null , name:""});	// 푸시메세지, 웹뷰 메세지 구분
+	const [showPushTest, setShowPushTest] = useState(false);	// 테스트발송 팝업
+	const [showExcel, setShowExcel] = useState(false);			// 엑셀 업로드 팝업
+	//const [pushSendInfo, setPushSendInfo] = useState(null);		// 발송 대상 선택 정보
 
-	const [targetType1, setTargetType1] = useState("A");
-	const [targetType2, setTargetType2] = useState("A");
+	const [pushTestData, setPushTestData] = useState({sendInfo:{}});	// 테스트발송 팝업에 전달할 푸시 등록 정보
+
+	const [baseNode, setBaseNode] = useState({object:null , name:""});	// 푸시메세지, 이미지 메세지 선택 정보
+
+	const [targetType1, setTargetType1] = useState("A");	// 푸시메세지의 대상 종류
+	const [targetType2, setTargetType2] = useState("A");	// 이미지메세지의 대상 종류
+	const [targetUserCount1, setTargetUserCount1] = useState(0);		// 푸시메세지 대상수
+	const [targetUserCount2, setTargetUserCount2] = useState(0);		// 이미지메세지 대상수
+	const [userList, setUserList] = useState([]);		// 엑셀 업로드 또는 대상 리스트를 통해 선택된 사용자 정보 리스트.
+
+
+
+
 	const [openSearchModal, setOpenSearchModal] = useState(false);
-	const [openTestModal, setOpenTestModal] = useState(false);
+
 	const [templateModal, setTemplateModal] = useState(false);
 	const [previewModal, setPreviewModal] = useState(false);
-	const [filedownModal, setFiledownModal] = useState(false);
 	const [checkContents, setCheckContents] = useState(true);
 
 	const [messageType1, setMessageType1] = useState("info");
@@ -93,6 +108,16 @@ const Push = () => {
 		}});
 	}
 
+	const respTest = (data) => {
+		Config.log(data);
+	}
+	const respExcel = (data) => {
+		Config.log("respExcel==>")
+		setUserList(data.list);
+		setTargetUserCount1(data.count);
+		Config.log(data);
+	}
+
 
 	const eventHandle = (ev) => {
 		let evo = ev.currentTarget;
@@ -112,25 +137,22 @@ const Push = () => {
 			console.log("form id=null" +  ", event=" + ev.type + ", act = " + act_v);
 
 		if(ev.type == "click") {
-			if(act_v == "search") {
-				//getTemplateList(1);
-			}
-			else if(act_v == "openTemplage") {
+			if(act_v == "openTemplage") {	// 템플릿 불러오기. 
 				setTemplateModal(true);				
 			}
-			else if(act_v == "previewTemplate") {
+			else if(act_v == "pushPreview") {	// 미리보기
 				setPreviewModal(true);
 			}
-			else if(act_v == "add_excel") {
+			else if(act_v == "add_excel") {	// 엑셀로 대상 추가하기
 				if(base.id == "frmPushMsg") {
 					setTargetType1("E");
 				}
 				else {
 					setTargetType2("E");
 				}
-				setFiledownModal(true);
+				setShowExcel(true);
 			}
-			else if(act_v == "target_search") {
+			else if(act_v == "target_search") {		// 대상자 불러오기
 				if(base.id == "frmPushMsg") {
 					setTargetType1("S");
 				}
@@ -139,12 +161,25 @@ const Push = () => {
 				}
 				setOpenSearchModal(true);
 			}
-			else if(act_v == "send_test") {
-				setOpenTestModal(true);
+			else if(act_v == "send_test") {	// 테스트 전송하기
+				//setShowPushTest(true);
+				//return;
+				if(validation_req(base)) {
+					const formData = new FormData(base);
+					const data = Object.fromEntries(formData.entries());
+					Config.log(data);
+					pushTestData.sendInfo = data;
+					setShowPushTest(true);
+				}
+				else {
+					alert("모든 정보를 규칙에 맞게 입력해야 발송 가능합니다.");
+				}
+
 			}
-			else if(act_v == "send_save") {
+			else if(act_v == "send_save") {	// 푸시 전송하기 저장.
 				if(validation(base)) {
 					const formData = new FormData(base);
+					formData.append("userList", userList);
 					const data = Object.fromEntries(formData.entries());
 					Config.log(data);
 					Config.log("send");
@@ -167,7 +202,7 @@ const Push = () => {
 			ev.preventDefault();
 		}
 		else if(ev.type == "change") {
-			if(act_v == "target_device") {
+			if(act_v == "target_device") {	// 푸시 발송대상 "대상 선택" 정보 변경시
 				if(base.id == "frmPushMsg") {
 					setTargetType1("A");
 				}
@@ -176,24 +211,29 @@ const Push = () => {
 				}
 				let senddata = {};
 				if(evo.selectedIndex == 0) {
-					let obj = baseNode.object.querySelector("#target_number");
-					obj.innerHTML = "총 발송대상 : 0명";
-					return;
+					if(base.id == "frmPushMsg") {
+						setTargetUserCount1(0);
+					}
+					else {
+						setTargetUserCount2(0);
+					}
+				return;
 				}
 				senddata["target_device"] = evo.options[evo.selectedIndex].value;
 				pushInput.getPushUserCount({
 					data:senddata,
 					callback:function(json) {
-						if(baseNode.object) {
-							let obj = baseNode.object.querySelector("#target_number");
-							if(obj) {
-								obj.innerHTML = "총 발송대상 : " + json.count + "명";
-							}
+						Config.log("base id=" + base.id);
+						if(base.id == "frmPushMsg") {
+							setTargetUserCount1(json.count);
+						}
+						else {
+							setTargetUserCount2(json.count);
 						}
 					}
 				});
 			}
-			else if(act_v == "target_type") {
+			else if(act_v == "target_type") {	// 발송대상 (디바이스별, 엑셀, 조건검색) 선택시.
 				if(base.id == "frmPushMsg") {
 					setTargetType1(ev.target.value );
 				}
@@ -201,7 +241,7 @@ const Push = () => {
 					setTargetType2(ev.target.value);
 				}
 			}
-			else if(act_v == "message_type") {
+			else if(act_v == "message_type") {	// 앱 구분(일반메시지, 광고메시지)
 				//ev.persist();
 				console.log(ev.target.value);
 				if(base.id == "frmPushMsg") {
@@ -211,7 +251,7 @@ const Push = () => {
 					setMessageType2(ev.target.value);
 				}
 			}
-			else if(act_v == "send_type") {
+			else if(act_v == "send_type") {		// 예약발송/ 즉시발송.
 				//ev.persist();
 				console.log(ev.target.value);
 				if(base.id == "frmPushMsg") {
@@ -221,7 +261,7 @@ const Push = () => {
 					setSendType2(ev.target.value);
 				}
 			}
-			else if(act_v == "limit_night") {
+			else if(act_v == "limit_night") {	// 야간 광고 제한 정보 변경.
 				//ev.persist();
 				console.log(ev.target.value);
 				if(base.id == "frmPushMsg") {
@@ -243,6 +283,25 @@ const Push = () => {
 		ev.preventDefault();
 	};	
 
+	const validation_req = (frm) => {
+		if(frm == null) return false;
+
+		if(!/^.{1,100}$/.test(frm.push_label.value))	return false;
+		if(!/^.{1,50}$/.test(frm.title.value))	return false;
+
+		if(frm.id == "frmWelcomeMsg") {
+			if(!/^.{1,50}$/.test(frm.emtitle.value))	return false;
+			if(!/^.{1,200}$/.test(frm.webview_url.value))	return false;
+		}
+		else if(frm.id == "frmPushMsg") {
+			if(sendType1 == "R") {
+				if(!/^.{1,10}$/.test(frm.reserve_date.value))	return false;
+			}
+		}
+
+		return true;
+    }
+
 	const validation = (frm) => {
 		if(frm == null) return false;
 
@@ -258,16 +317,21 @@ const Push = () => {
 			if(sendType2 == "R") {
 				if(!/^.{1,10}$/.test(frm.reserve_date.value))	return false;
 			}
+			if(targetUserCount2 <= 0) {
+				return false;
+			}
 		}
 		else if(frm.id == "frmPushMsg") {
 			if(sendType1 == "R") {
 				if(!/^.{1,10}$/.test(frm.reserve_date.value))	return false;
 			}
+			if(targetUserCount1 <= 0) {
+				return false;
+			}
 		}
 
 		return true;
     }
-
 
 	return(
 		<div className="wrapper">
@@ -275,7 +339,7 @@ const Push = () => {
 				<Header />	
 			</Container>
 			<Container as="main" fluid>
-				<Tabs defaultActiveKey="welcomeMsg" id="" className="custom__tab">
+				<Tabs defaultActiveKey="pushMsg" defaultActiveKey2="welcomeMsg" id="" className="custom__tab">
 
 					<Tab eventKey="pushMsg" title="푸시 메시지">
 						<form name="frmPushMsg" id="frmPushMsg" data-id="push">
@@ -292,7 +356,7 @@ const Push = () => {
 											<Form.Select aria-label="" name="app_id" id="app_id">
 												{
 													appList.map((item, index) =>
-														<option value={item.app_id}>{item.app_name}</option>
+														<option key={item.seq} value={item.app_id}>{item.app_name}</option>
 													)
 												}
 											</Form.Select>
@@ -318,7 +382,7 @@ const Push = () => {
 											<Form.Select aria-label="" name="sender_seq" id="sender_seq">
 												{
 													senderList.map((item, index) =>
-														<option value={item.seq}>{item.sender_name}({item.sender_id})</option>
+														<option key={item.seq} value={item.seq}>{item.sender_name}({item.sender_id})</option>
 													)
 												}
 											</Form.Select>
@@ -375,7 +439,7 @@ const Push = () => {
 									<tr>
 										<th scope='row'>발송 대상</th>
 										<td className="text-start">
-											<div id="target_number" className="mb-2">총 발송대상 : 0명</div>
+											<div id="target_number" className="mb-2">총 발송대상 : {targetUserCount1.toLocaleString()}명</div>
 											<Row key="inline-radio" xs="auto">
 												<Col className="d-flex align-items-center">
 													<Form.Check
@@ -400,7 +464,6 @@ const Push = () => {
 													</Form.Select>
 												</Col>
 												<Col>
-													<input type="file" name="target_excel" id="target_excel" className="hide"/>
 													<Form.Check
 														inline
 														label="엑셀 파일 업로드"
@@ -414,7 +477,7 @@ const Push = () => {
 													/>
 													<Button variant="outline-dark" size="sm" data-act="add_excel" onClick={eventHandle}><RiUploadLine /> 파일 첨부</Button>
 												</Col>
-												<Col>
+												<Col className="hide">
 													<Form.Check
 														inline
 														label="조건 검색"
@@ -436,17 +499,17 @@ const Push = () => {
 						</div>
 						{/* //대상 선택 */}
 						{/* 메시지 입력 */}
-						<div className="sub__header mt-3">
+						<div className="sub__header mt-3 hide">
 							<h3 className="sub__header-title">메시지 입력</h3>
 							<div className="sub__header-button">
 								<Button variant="dark" size="sm" data-act="saveTemplage" onClick={eventHandle}>템플릿에 저장</Button>
-								<Button variant="dark ms-2" size="sm" data-act="previewTemplate" onClick={eventHandle}>미리보기</Button>
+								<Button variant="dark ms-2" size="sm" data-act="pushPreview" onClick={eventHandle}>미리보기</Button>
 							</div>
 						</div>
 						<div className="table__wrap mt-2">
 							<Table bordered responsive className="table__view">
 								<tbody>
-									<tr>
+									<tr className="hide">
 										<th scope='row'>템플릿</th>
 										<td className="text-start">
 											<div>
@@ -492,12 +555,12 @@ const Push = () => {
 						<div className="table__wrap mt-2">
 							<Table bordered responsive className="table__view">
 								<tbody>
-									<tr>
+									<tr className="hide">
 										<th scope='row'>본문 이미지</th>
 										<td className="text-start">
 											<Row className="fileup__ui">
 												<Col className="col-auto">
-													<FileUpload imageWidth={160} imageHeight={106} maxFileSize={1} inputName="image_push"></FileUpload>
+													<FileUpload imageWidth={160} imageHeight={106} maxFileSize={1} inputName="image_push2"></FileUpload>
 												</Col>
 												<Col className="col-auto">
 													<Button variant="outline-dark" size="sm" data-act="attach_image_push" onClick={eventHandle}>
@@ -707,12 +770,12 @@ const Push = () => {
 
 
 
-					<Tab eventKey="welcomeMsg" title="웹뷰 메시지">
+					<Tab eventKey="welcomeMsg" title="이미지 메시지">
 						<form name="frmWelcomeMsg" id="frmWelcomeMsg" data-id="welcome">
 							<input type="hidden" name="source_path" id="source_path" value="system"/>
 							<input type="Hidden" name="target_type" id="target_type" value={targetType2}/>
 						<div className="main__header">
-							<h2 className="main__header-title">웹뷰 메시지</h2>	
+							<h2 className="main__header-title">이미지 메시지</h2>	
 						</div>
 						<div className="table__wrap mt-4">
 							<Table bordered responsive className="table__view">
@@ -723,7 +786,7 @@ const Push = () => {
 											<Form.Select aria-label="" name="app_id" id="app_id">
 												{
 													appList.map((item, index) =>
-														<option value={item.app_id}>{item.app_name}</option>
+														<option key={item.seq} value={item.app_id}>{item.app_name}</option>
 													)
 												}
 											</Form.Select>
@@ -749,7 +812,7 @@ const Push = () => {
 											<Form.Select aria-label="" name="sender_seq" id="sender_seq">
 												{
 													senderList.map((item, index) =>
-														<option value={item.seq}>{item.sender_name}({item.sender_id})</option>
+														<option key={item.seq} value={item.seq}>{item.sender_name}({item.sender_id})</option>
 													)
 												}
 											</Form.Select>
@@ -806,7 +869,7 @@ const Push = () => {
 									<tr>
 										<th scope='row'>앱 구분</th>
 										<td className="text-start">
-											<div id="target_number" className="mb-2">총 발송대상 : 0명</div>
+											<div id="target_number" className="mb-2">총 발송대상 : {targetUserCount2.toLocaleString()}명</div>
 											<Form.Select aria-label="" name="target_device" id="target_device" className="d-inline-block" data-act="target_device" onChange={eventHandle}>
 												<option value="">대상 선택</option>
 												<option value="all">전체 앱 사용자</option>
@@ -827,7 +890,7 @@ const Push = () => {
 						<div className="sub__header mt-3">
 							<h3 className="sub__header-title">메시지</h3>
 							<div className="sub__header-button">
-								<Button variant="dark ms-2" size="sm" data-act="previewTemplate" onClick={eventHandle}>미리보기</Button>
+								<Button variant="dark ms-2" size="sm" data-act="pushPreview" onClick={eventHandle}>미리보기</Button>
 							</div>
 						</div>
 						<div className="table__wrap mt-2">
@@ -983,6 +1046,8 @@ const Push = () => {
 			</Container>
 
 
+			<PopupPushTest isShow={showPushTest} callback={respTest} close={setShowPushTest} data={pushTestData}></PopupPushTest>
+			<PopupPushExcelUpload isShow={showExcel} callback={respExcel} close={setShowExcel}></PopupPushExcelUpload>
 
 
 
@@ -1125,143 +1190,34 @@ const Push = () => {
 			</Modal>
 
 
-
-			{/* 테스트 발송 선택 팝업 */}
-			<Modal show={openTestModal} onHide={setOpenTestModal} centered className="">
-				<Modal.Header closeButton>
-					<Modal.Title>테스트 발송</Modal.Title>
-				</Modal.Header>
-				<Modal.Body>
-							{/* 검색 영역 */}
-							<Form name="frmPopTemplate" id="frmPopTemplate">
-								<Row className="search__form">
-									<Col>
-										<Row className="search__form-group">
-											<Col lg="auto">
-												<Form.Select aria-label="system" className="d-inline-block w-auto" name="search_key" id="search_key">
-													<option value="name">성명</option>
-													<option value="user_id">회원 ID</option>
-												</Form.Select>
-												<Form.Control type="text" className="d-inline-block w-auto ms-1" placeholder="" />
-											</Col>
-										</Row>
-									</Col>
-									<Col lg="2" className="text-end">
-										<Button variant="outline-primary" data-act="popupTemplateSearch" onClick={eventHandle}>검색</Button>
-									</Col>
-								</Row>
-							</Form>
-							<div className="table__wrap mt-4">
-								<div className="select__list mb-3">
-									<span className="select__list-item">홍길동(Honggil) <Button size="sm" variant=""><RiCloseLine /></Button></span>
-									<span className="select__list-item">김영철(KIMyeongchul) <Button size="sm" variant=""><RiCloseLine /></Button></span>
-									<span className="select__list-item">홍길동(Hong-gil-dong) <Button size="sm" variant=""><RiCloseLine /></Button></span>
-									<span className="select__list-item">김영철(KIMyeongchul)<Button size="sm" variant=""><RiCloseLine /></Button></span>
-								</div>
-								<Table bordered responsive>
-									<thead>
-										<tr>
-											<th scope='col'>No</th>
-											<th scope='col'>회원ID</th>
-											<th scope='col'>성명</th>
-											<th scope='col'>전화번호</th>
-											<th scope='col'>플랫폼</th>
-											<th scope='col'></th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td>1</td>
-											<td>Hong dil-dong1</td>
-											<td>홍길동</td>
-											<td>01012345678</td>
-											<td>IOS</td>
-											<td>
-												<Button size="sm" variant="outline-dark">선택</Button>
-											</td>
-										</tr>
-										<tr>
-											<td>1</td>
-											<td>Hong dil-dong1</td>
-											<td>홍길동</td>
-											<td>01012345678</td>
-											<td>IOS</td>
-											<td>
-												<Button size="sm" variant="outline-dark">선택</Button>
-											</td>
-										</tr>
-									</tbody>
-								</Table>
-								<div className="table__pagination">
-									<Pagination>
-										<Pagination.Prev />
-										<Pagination.Item active>{1}</Pagination.Item>
-										<Pagination.Item>{2}</Pagination.Item>
-										<Pagination.Item>{3}</Pagination.Item>
-										<Pagination.Next />
-									</Pagination>
-								</div>
-							</div>
-						</Modal.Body>
-				<Modal.Footer>
-					<Button variant="secondary" onClick={() => setOpenTestModal(false)}>취소</Button>
-					<Button variant="primary" onClick={() => setOpenTestModal(false)}>테스트 발송</Button>
-				</Modal.Footer>
-			</Modal>
-
 			{/* 미리보기 */}
-      <Modal show={previewModal} onHide={setPreviewModal} centered size="sm">
-        <Modal.Header closeButton>
-          <Modal.Title>미리보기</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-					<Tabs
-						defaultActiveKey="home"
-						transition={false}
-						id="noanim-tab-example"
-						className="mb-3 justify-content-center"
-					>
-						<Tab eventKey="home" title="Android">
-							<div className="preview-box">
-								Android
-							</div>
-						</Tab>
-						<Tab eventKey="profile" title="IOS">
-							<div className="preview-box">
-								IOS
-							</div>
-						</Tab>
-					</Tabs>
-				</Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setPreviewModal(false)}>닫기</Button>
-        </Modal.Footer>
-      </Modal>			
-
-			{/* 엑셀 파일 업로드 */}
-			<Modal show={filedownModal} onHide={setFiledownModal} centered size="sm">
+			<Modal show={previewModal} onHide={setPreviewModal} centered size="sm">
 				<Modal.Header closeButton>
-				<Modal.Title>엑셀 파일 업로드</Modal.Title>
+				<Modal.Title>미리보기</Modal.Title>
 				</Modal.Header>
 				<Modal.Body>
-							<div className="bg-box text-center hide">
-								총 발송 대상자 <strong>1456</strong>명
-							</div>
-							<div className="text-center mt-4 mb-4">
-								발송 대상자 엑셀을 업로드해주세요.<br />
-								<input type="file" name="upExcel" id="upExcel" className="hide"/>
-								<Button variant="secondary mt-3 mb-3"><RiUpload2Line /> 파일 업로드</Button><br />
-								<div className="text-start d-flex justify-content-center text-secondary hide">
-									&middot; 첨부 : 파일명.확장자 (1,123KB)<br />
-									&middot; 샘플 : 엑셀파일 양식 [다운로드]
-								</div>
-							</div>
+							<Tabs
+								defaultActiveKey="home"
+								transition={false}
+								id="noanim-tab-example"
+								className="mb-3 justify-content-center"
+							>
+								<Tab eventKey="home" title="Android">
+									<div className="preview-box">
+										Android
+									</div>
+								</Tab>
+								<Tab eventKey="profile" title="IOS">
+									<div className="preview-box">
+										IOS
+									</div>
+								</Tab>
+							</Tabs>
 						</Modal.Body>
 				<Modal.Footer>
-				<Button variant="secondary" onClick={() => setFiledownModal(false)}>취소</Button>
-				<Button variant="primary hide" onClick={() => setFiledownModal(false)}>대상자 확정</Button>
+				<Button variant="secondary" onClick={() => setPreviewModal(false)}>닫기</Button>
 				</Modal.Footer>
-			</Modal>
+			</Modal>			
 
 		</div>
 	);
