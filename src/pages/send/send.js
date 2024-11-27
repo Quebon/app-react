@@ -291,7 +291,7 @@ const Send = () => {
 												<td>{item.app_name}</td>
 												<span className={"send__status " + Config.getPushStatuCss(item.status)}><RiCircleFill />{Config.getPushStatuName(item.status)}</span>
 												<td>{Config.getTargetName(item.target_type)}</td>
-												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.title}</div></td>
+												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.push_label}</div></td>
 												<td>{item.count_total.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>
 												<td>{item.count_fail.toLocaleString()}</td>
