@@ -15,12 +15,12 @@ import account from '../../common/Account';
 const AdminAdd = () => {
 	const {seq} = useParams();
 	console.log("data_key=" + seq);
-	const [validated, setValidated] = useState(false);
+	//const [validated, setValidated] = useState(false);
 	const [info, setInfo] = useState(null);
 
 	useEffect(() => {getInfo();}, []);
 
-	const frm = document.querySelector("#frmInput");
+	const frm = document.querySelector("#frmAdminAdd");
 	const eventHandle = (ev) => {
 		ev.preventDefault();
 		let evo = ev.currentTarget;
@@ -38,6 +38,7 @@ const AdminAdd = () => {
 			if (validation() === false) {
 				alert("모든 정보를 규칙에 맞게 입력해야 저장 가능합니다.");
 			}else{
+				const frm = document.querySelector("#frmAdminAdd");
 				const formData = new FormData(frm);
 				const data = Object.fromEntries(formData.entries());
 				console.log(data);
@@ -96,7 +97,7 @@ const AdminAdd = () => {
 	};
 
 	const validation = () => {
-		const frm = document.querySelector("#frmInput");
+		const frm = document.querySelector("#frmAdminAdd");
 		if(seq <= 0) {
 			const userIdRegex = /^[A-Za-z0-9+]{5,20}$/;
 			if (!userIdRegex.test(frm.login_id.value)) return false;
@@ -129,7 +130,7 @@ const AdminAdd = () => {
 					<h2 className="main__header-title">{seq > 0?'운영자 수정':'운영자 등록'}</h2>	
 				</div>
 				<div className="table__wrap mt-4">
-					<form noValidate validated={validated}  name="frmInput" id="frmInput">
+					<form  name="frmAdminAdd" id="frmAdminAdd">
 					<Table bordered responsive className="table__view">
 						<tbody>
 							{ info ? 

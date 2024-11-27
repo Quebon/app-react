@@ -123,7 +123,7 @@ const AppInfoAdd = () => {
 		const userNameRegex = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{1,50}$/;
 		if (!userNameRegex.test(frm.app_name.value)) return false;
 
-		const regex2 = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{1,50}$/;
+		const regex2 =  /^(?=.{1,50}$).*/
 		if (!regex2.test(frm.app_id.value)) return false;
 
 		var opt1 = document.querySelector("#app_kind_dev");
@@ -132,8 +132,6 @@ const AppInfoAdd = () => {
 		if(opt1.checked == false && opt2.checked == false) {
 			return false;
 		}
-
-
 		return true;
     }
 

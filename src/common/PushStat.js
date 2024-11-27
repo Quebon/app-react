@@ -23,6 +23,26 @@ const PushStat = {
 			}
 		);
 	},
+	getHistoryList2: (props) => {
+		Config.log("header");
+		Config.log(Config.httpHeader);
+		Config.log(props);
+		axios.post(Config.host_api + '/push/getPushHistoryList2', props.data, {headers:Config.httpHeader}, {withCredentials:true})
+			.then(response => {
+				Config.log(response);
+				if(response.status == 200){
+					if(response.data.header.code == 200) {
+						props.callback(response.data.body);
+					}
+					else {
+						props.callback(null);
+					}
+				} else {
+					props.callback(null);
+				}
+			}
+		);
+	},
 	getLogList: (props) => {
 		axios.post(Config.host_api + '/push/getPushHistoryLogList', props.data, {headers:Config.httpHeader}, {withCredentials:true})
 			.then(response => {

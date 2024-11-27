@@ -29,8 +29,8 @@ const Send = () => {
 	const [pushDailyInfo, setPushDailyInfo] = useState(  {currPage:1, totalRecords:0, pageItems:[]} );
 
 	const [appList, setAppList] = useState([]);
-	const [historyList, setHistoryList] = useState({list:[], sum:{count_total:0, count_success:0, count_fail:0, count_ing:0, count_ready:0, count_recv:0, count_open:0}});
-	const [talkList, setTalkList] =useState({list:[], sum:{count_total:0, count_success:0, count_fail:0, count_ing:0, count_ready:0, count_recv:0, count_open:0}});
+	const [historyList, setHistoryList] = useState({list:[], sum:{count_total:0, count_deny:0, count_success:0, count_fail:0, count_ing:0, count_ready:0, count_recv:0, count_open:0}});
+	const [talkList, setTalkList] =useState({list:[], sum:{count_total:0, count_deny:0, count_success:0, count_fail:0, count_ing:0, count_ready:0, count_recv:0, count_open:0}});
 	const [dailyList, setDailyList] = useState([]);
 
 	useEffect(() => {
@@ -59,7 +59,7 @@ const Send = () => {
 		}
 		else if(act_v == "downloadTalk") {
 			let fm = document.querySelector("#frmSearch_2");
-			fm.action = Config.host_api + "/push/downloadExcelPushHistoryList";
+			fm.action = Config.host_api + "/push/downloadExcelPushHistoryList2";
 			fm.submit();
 		}
 		else if(act_v == "downloadDaily") {
@@ -112,7 +112,7 @@ const Send = () => {
 		const data = Object.fromEntries(formData.entries());
 		data["page"] = pg - 1 + 1;
 		data["pageSize"] = 10;
-		pushStat.getHistoryList({data:data, callback:respTalkList});
+		pushStat.getHistoryList2({data:data, callback:respTalkList});
 	}
 
 	const getDailyList = (pg) => {
@@ -179,13 +179,13 @@ const Send = () => {
 			</Container>
 			<Container as="main" fluid>
 				<Tabs defaultActiveKey="sendReport1" id="" className="custom__tab">
+
 					<Tab eventKey="sendReport1" title="푸시 발송이력">
 						<div className="main__header">
 							<h2 className="main__header-title">푸시 발송이력</h2>	
 						</div>
 						{/* 검색 영역 */}
 						<Form name="frmSearch_1" id="frmSearch_1" method="post" >
-							<input type="hidden" name="source_path" defaultValue={"system"}/>
 							<Row className="search__form">
 								<Col>
 									<Row className="search__form-group">
@@ -209,14 +209,13 @@ const Send = () => {
 												</div>
 											</InputGroup>
 										</Col>
-										{/*<Col lg="auto">
+										<Col lg="auto">
 											<Form.Select aria-label="system" name="source_path" id="source_path">
-												<option value="">전체</option>
+												<option value="system_test">전체</option>
 												<option value="system">푸시</option>
-												<option value="talk">알림톡</option>
-												<option value="sms">문자</option>
+												<option value="test">테스트</option>
 											</Form.Select>
-										</Col>*/}
+										</Col>
 										<Col lg="auto">
 											<Form.Select aria-label="system" name="target_type" id="target_type">
 												<option value="">전체 푸시 </option>
@@ -228,7 +227,9 @@ const Send = () => {
 										<Col lg="auto">
 											<Form.Select aria-label="system" name="status" id="status">
 												<option value="">전체</option>
+												<option value="D">수신비동의</option>
 												<option value="C">성공</option>
+												<option value="I">발송중</option>
 												<option value="F">실패</option>
 												<option value="R">수신</option>
 												<option value="O">오픈</option>
@@ -252,10 +253,11 @@ const Send = () => {
 						<div className="send__status-wrap">
 							<ButtonGroup className="mt-4 ">
 								<ToggleButton variant="outline-dark" value="1" checked className="">전체<span>({historyList.sum.count_total.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-primary" value="2" className=""><RiCircleFill /> 발송 완료<span>({historyList.sum.count_success.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-warning" value="3" className=""><RiCircleFill /> 발송 중<span>({historyList.sum.count_ing.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-success" value="4" className=""><RiCircleFill /> 발송 예약<span>({historyList.sum.count_ready.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-danger" value="5" className=""><RiCircleFill /> 발송 실패<span>({historyList.sum.count_fail.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-secondary" value="2" className=""><RiCircleFill /> 수신비동의<span>({historyList.sum.count_deny.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-primary" value="3" className=""><RiCircleFill /> 발송 완료<span>({historyList.sum.count_success.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-warning" value="4" className=""><RiCircleFill /> 발송 중<span>({historyList.sum.count_ing.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-success" value="5" className=""><RiCircleFill /> 발송 예약<span>({historyList.sum.count_ready.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-danger" value="6" className=""><RiCircleFill /> 발송 실패<span>({historyList.sum.count_fail.toLocaleString()})</span></ToggleButton>
 							</ButtonGroup>
 						</div>
 						<div className="table__wrap mt-4">
@@ -270,12 +272,15 @@ const Send = () => {
 							<Table bordered responsive>
 								<thead>
 									<tr>
+										<th scope='col'>ID</th>
 										<th scope='col'>발송(예약)일시</th>
 										<th scope='col'>앱이름</th>
 										<th scope='col'>싱태</th>
+										<th scope='col'>소스</th>
 										<th scope='col'>대상</th>
 										<th scope='col'>메시지</th>
 										<th scope='col'>발송대상</th>
+										<th scope='col'>수신비동의</th>
 										<th scope='col'>성공</th>
 										<th scope='col'>실패</th>
 										<th scope='col'>수신</th>
@@ -287,19 +292,22 @@ const Send = () => {
 										historyList.list.length > 0 ?
 										historyList.list.map( (item, index) =>
 											<tr>
+												<td>{item.seq}</td>
 												<td>{item.send_date_str?item.send_date_str:item.reserve_date_str}</td>
 												<td>{item.app_name}</td>
 												<span className={"send__status " + Config.getPushStatuCss(item.status)}><RiCircleFill />{Config.getPushStatuName(item.status)}</span>
-												<td>{Config.getTargetName(item.target_type)}</td>
+												<td>{item.source_path == 'test'?'테스트':'푸시'}</td>
+												<td>{item.source_path == 'test'?'-':Config.getTargetName(item.target_type)}</td>
 												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.push_label}</div></td>
 												<td>{item.count_total.toLocaleString()}</td>
+												<td>{item.count_deny.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>
 												<td>{item.count_fail.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>
 												<td>{item.count_open.toLocaleString()}</td>
 											</tr>
 										)
-										: (<tr><td colSpan={10}>데이터가 없습니다.</td></tr>)
+										: (<tr><td colSpan={13}>데이터가 없습니다.</td></tr>)
 									}
 
 								</tbody>
@@ -350,7 +358,9 @@ const Send = () => {
 										<Col lg="auto">
 											<Form.Select aria-label="system" name="status" id="status">
 												<option value="">전체</option>
+												<option value="D">수신비동의</option>
 												<option value="C">성공</option>
+												<option value="I">발송중</option>
 												<option value="F">실패</option>
 												<option value="R">수신</option>
 												<option value="O">오픈</option>
@@ -373,11 +383,12 @@ const Send = () => {
 						{/* 발송 상태별 탭 */}
 						<div className="send__status-wrap">
 							<ButtonGroup className="mt-4 ">
-							<ToggleButton variant="dark" value="1" checked className="">전체<span>({talkList.sum.count_total.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-primary" value="2" className=""><RiCircleFill /> 발송 완료<span>({talkList.sum.count_success.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-warning" value="3" className=""><RiCircleFill /> 발송 중<span>({talkList.sum.count_ing.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-success" value="4" className=""><RiCircleFill /> 발송 예약<span>({talkList.sum.count_ready.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-danger" value="5" className=""><RiCircleFill /> 발송 실패<span>({talkList.sum.count_fail.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-dark" value="1" checked className="">전체<span>({talkList.sum.count_total.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-secondary" value="2" className=""><RiCircleFill /> 수신비동의<span>({historyList.sum.count_deny.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-primary" value="3" className=""><RiCircleFill /> 발송 완료<span>({talkList.sum.count_success.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-warning" value="4" className=""><RiCircleFill /> 발송 중<span>({talkList.sum.count_ing.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-success" value="5" className=""><RiCircleFill /> 발송 예약<span>({talkList.sum.count_ready.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-danger" value="6" className=""><RiCircleFill /> 발송 실패<span>({talkList.sum.count_fail.toLocaleString()})</span></ToggleButton>
 							</ButtonGroup>
 						</div>
 						<div className="table__wrap mt-4">
@@ -392,12 +403,15 @@ const Send = () => {
 							<Table bordered responsive>
 								<thead>
 									<tr>
+										<th scope='col'>ID</th>
 										<th scope='col'>발송(예약)일시</th>
 										<th scope='col'>앱이름</th>
 										<th scope='col'>싱태</th>
 										<th scope='col'>소스</th>
+										<th scope='col'>대상</th>
 										<th scope='col'>메시지</th>
 										<th scope='col'>발송대상</th>
+										<th scope='col'>수신비동의</th>
 										<th scope='col'>성공</th>
 										<th scope='col'>실패</th>
 										<th scope='col'>수신</th>
@@ -409,19 +423,22 @@ const Send = () => {
 										talkList.list.length > 0 ?
 										talkList.list.map( (item, index) =>
 											<tr>
+												<td>{item.seq}</td>
 												<td>{item.send_date_str?item.send_date_str:item.reserve_date_str}</td>
 												<td>{item.app_name}</td>
 												<span className={"send__status " + Config.getPushStatuCss(item.status)}><RiCircleFill />{Config.getPushStatuName(item.status)}</span>
 												<td>{Config.getSourcePathName(item.source_path)}</td>
+												<td>{item.name}({item.email})</td>
 												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.title}</div></td>
 												<td>{item.count_total.toLocaleString()}</td>
+												<td>{item.count_deny.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>
 												<td>{item.count_fail.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>
 												<td>{item.count_open.toLocaleString()}</td>
 											</tr>
 										)
-										: (<tr><td colSpan={10}>데이터가 없습니다.</td></tr>)
+										: (<tr><td colSpan={13}>데이터가 없습니다.</td></tr>)
 									}
 								</tbody>
 							</Table>
@@ -467,6 +484,7 @@ const Send = () => {
 												<option value="system">푸시</option>
 												<option value="talk">알림톡</option>
 												<option value="sms">문자</option>
+												<option value="test">테스트</option>
 											</Form.Select>
 										</Col>
 									</Row>
