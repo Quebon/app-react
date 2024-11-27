@@ -179,8 +179,8 @@ const Push = () => {
 			else if(act_v == "send_save") {	// 푸시 전송하기 저장.
 				if(validation(base)) {
 					const formData = new FormData(base);
-					formData.append("userList", userList);
 					const data = Object.fromEntries(formData.entries());
+					data["userList"] = userList;
 					Config.log(data);
 					Config.log("send");
 					pushInput.addPushQueue({
