@@ -251,7 +251,7 @@ const Send = () => {
 						{/* 발송 상태별 탭 */}
 						<div className="send__status-wrap">
 							<ButtonGroup className="mt-4 ">
-								<ToggleButton variant="dark" value="1" checked className="">전체<span>({historyList.sum.count_total.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant="outline-dark" value="1" checked className="">전체<span>({historyList.sum.count_total.toLocaleString()})</span></ToggleButton>
 								<ToggleButton variant="outline-primary" value="2" className=""><RiCircleFill /> 발송 완료<span>({historyList.sum.count_success.toLocaleString()})</span></ToggleButton>
 								<ToggleButton variant="outline-warning" value="3" className=""><RiCircleFill /> 발송 중<span>({historyList.sum.count_ing.toLocaleString()})</span></ToggleButton>
 								<ToggleButton variant="outline-success" value="4" className=""><RiCircleFill /> 발송 예약<span>({historyList.sum.count_ready.toLocaleString()})</span></ToggleButton>
@@ -291,7 +291,7 @@ const Send = () => {
 												<td>{item.app_name}</td>
 												<span className={"send__status " + Config.getPushStatuCss(item.status)}><RiCircleFill />{Config.getPushStatuName(item.status)}</span>
 												<td>{Config.getTargetName(item.target_type)}</td>
-												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.title}</div></td>
+												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.push_label}</div></td>
 												<td>{item.count_total.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>
 												<td>{item.count_fail.toLocaleString()}</td>

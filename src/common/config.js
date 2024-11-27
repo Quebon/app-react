@@ -2,15 +2,15 @@ const Config = {
 	log:function(str) { 
 		console.log(str); 
 	},
-	//host_api : "http://localhost:8080/api/v1",
+	api_key : "Basic c1Q5c2NWSjFFazo3YzNvSk1rMzc0bWlPNXpRdFBvc3hMaDF1Q3FLVEJ5M1FIR3h5OURaOFdUWDBmSzA2OWhiOTdWa3NJa1RESVhR",
 	host_api : "/api/v1",
-	//host_api : "https://dev-app.quebon.tv/api/v1",
 	httpHeader : {
 		"agent":"quebon",
 		"session_id":localStorage.getItem("qb_admin_session"),
 		"crossdomain":true
 	},
-	getFileBasePath:"http://localhost:8080/",
+	getFileBasePath:"/assets/upload/",
+	//getFileBasePath:"http://localhost:8080/",
 	//getFileBasePath:"https:dev-app.quebon.tv/",
 
 	getPushStatuCss:function(id_v) {
