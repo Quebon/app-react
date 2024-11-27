@@ -1,0 +1,24 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "push.quebon.tv"
+        }
+      ],
+      "destination": "https://push-api.quebon.tv/api/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev-push.quebon.tv"
+        }
+      ],
+      "destination": "https://dev-push-api.quebon.tv/api/:path*"
+    }
+  ]
+}
