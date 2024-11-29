@@ -119,7 +119,6 @@ const AppInfo = () => {
 								<th scope='col'>변경일</th>
 								<th scope='col'>앱 이름</th>
 								<th scope='col'>앱 ID</th>
-								<th scope='col'>플랫폼</th>
 								<th scope='col'>편집</th>
 							</tr>
 						</thead>
@@ -133,14 +132,13 @@ const AppInfo = () => {
 										<td>{item.update_date_str}</td>
 										<td><Link to={"/app/view/" + item.seq}>{item.app_name}</Link></td>
 										<td><Link to={"/app/view/" + item.seq}>{item.app_id}</Link></td>
-										<td>{item?(item.aos_package_name?'Android OS':''):''} {item?(item.ios_package_name?'iOS':''):''}</td>
 										<td>
 											<Button size="sm" variant="outline-dark" data-id={item.seq} data-act="modify" onClick={eventHandle}>수정</Button>
 											<Button size="sm" variant="outline-dark ms-2" data-id={item.seq} data-act="delete" onClick={eventHandle}>삭제</Button>
 										</td>
 									</tr>
 								)
-								: (<tr><td colSpan={7}>데이터가 없습니다.</td></tr>)
+								: (<tr><td colSpan={6}>데이터가 없습니다.</td></tr>)
 							}
 
 						</tbody>

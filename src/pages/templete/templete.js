@@ -306,7 +306,6 @@ const Templete = () => {
 										<th scope='col'>발송자 ID</th>
 										<th scope='col'>발송자명</th>
 										<th scope="col">등록자</th>
-										<th scope="col">이미지</th>
 										<th scope="col">편집</th>
 									</tr>
 								</thead>
@@ -320,7 +319,7 @@ const Templete = () => {
 												<td>{item.sender_id}</td>
 												<td>{item.sender_name}</td>
 												<td>{item.reg_user_id}</td>
-												<td>
+												<td className="hide">
 													{
 														item.filename ? 
 														<img width={80} height={80} src={Config.getFileBasePath + "/Files/sender/" + item.filename}/>
@@ -333,7 +332,7 @@ const Templete = () => {
 												</td>
 											</tr>
 										)
-										: (<tr><td colSpan={7}>데이터가 없습니다.</td></tr>)
+										: (<tr><td colSpan={6}>데이터가 없습니다.</td></tr>)
 									}
 								</tbody>
 							</Table>
@@ -409,7 +408,7 @@ const Templete = () => {
 										<Form.Control placeholder="발송자명을 입력하세요" name="sender_name" id="sender_name" defaultValue={senderItem.sender_name}></Form.Control>
 									</td>
 								</tr>
-								<tr>
+								<tr className="hide">
 									<th scope='row'>기본 이미지</th>
 									<td className="text-start">
 										<Row className="fileup__ui">
@@ -431,7 +430,7 @@ const Templete = () => {
 													<RiDeleteBinLine /> 삭제
 												</Button>
 											</Col>
-											<Col className="col-auto">
+											<Col className="col-auto hide">
 												<small className="text-secondary-emphasis">※ size : 512px  X 512px, PNG, JPG , 1MB이하</small>
 											</Col>
 										</Row>

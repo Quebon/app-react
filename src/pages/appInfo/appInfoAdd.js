@@ -205,7 +205,7 @@ const AppInfoAdd = () => {
 									{info.authkey_json ? info.authkey_json:''}
 								</td>
 							</tr>
-							<tr>
+							<tr className="hide">
 								<th scope='row'>앱 아이콘</th>
 								<td className="text-start">
 									<Row className="fileup__ui">

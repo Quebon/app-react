@@ -99,11 +99,11 @@ const AdminAdd = () => {
 	const validation = () => {
 		const frm = document.querySelector("#frmAdminAdd");
 		if(seq <= 0) {
-			const userIdRegex = /^[A-Za-z0-9+]{5,20}$/;
+			const userIdRegex = /^[A-Za-z0-9+]{2,20}$/;
 			if (!userIdRegex.test(frm.login_id.value)) return false;
 		}
 
-		const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+		const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,}$/;
 		if (!passwordRegex.test(frm.login_pw.value)) return false;
 
 		const userNameRegex = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{1,30}$/;
