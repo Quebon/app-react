@@ -304,17 +304,6 @@ const Send = () => {
 								</Col>
 							</Row>
 						</Form>
-						{/* 발송 상태별 탭 */}
-						<div className="send__status-wrap">
-							<ButtonGroup className="mt-4 ">
-								<ToggleButton variant="outline-dark" value="1" checked className="">전체<span>({historyList.sum.count_total.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-secondary" value="2" className=""><RiCircleFill /> 수신비동의<span>({historyList.sum.count_deny.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-primary" value="3" className=""><RiCircleFill /> 발송 완료<span>({historyList.sum.count_success.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-warning" value="4" className=""><RiCircleFill /> 발송 중<span>({historyList.sum.count_ing.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-success" value="5" className=""><RiCircleFill /> 발송 예약<span>({historyList.sum.count_ready.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-danger" value="6" className=""><RiCircleFill /> 발송 실패<span>({historyList.sum.count_fail.toLocaleString()})</span></ToggleButton>
-							</ButtonGroup>
-						</div>
 						<div className="table__wrap mt-4">
 							<Row className="table__head">
 								<Col>
@@ -336,9 +325,9 @@ const Send = () => {
 										<th scope='col'>메시지</th>
 										<th scope='col'>발송대상</th>
 										<th scope='col'>수신비동의</th>
-										<th scope='col'>성공</th>
-										<th scope='col'>실패</th>
-										<th scope='col'>수신</th>
+										<th scope='col'>전송성공</th>
+										<th scope='col'>전송실패</th>
+										<th scope='col'>앱수신</th>
 										<th scope='col'>오픈</th>
 									</tr>
 								</thead>
@@ -353,7 +342,7 @@ const Send = () => {
 												<span className={"send__status " + Config.getPushStatuCss(item.status)}><RiCircleFill />{Config.getPushStatuName(item.status)}</span>
 												<td>{item.source_path == 'test'?'테스트':'푸시'}</td>
 												<td>{item.source_path == 'test'?'-':Config.getTargetName(item.target_type)}</td>
-												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.push_label}</div></td>
+												<td className="text-start"><div className="text-truncate " >{item.push_label}</div></td>
 												<td>{item.count_total.toLocaleString()}</td>
 												<td>{item.count_deny.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>
@@ -446,17 +435,6 @@ const Send = () => {
 								</Col>
 							</Row>
 						</Form>
-						{/* 발송 상태별 탭 */}
-						<div className="send__status-wrap">
-							<ButtonGroup className="mt-4 ">
-								<ToggleButton variant="outline-dark" value="1" checked className="">전체<span>({talkList.sum.count_total.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-secondary" value="2" className=""><RiCircleFill /> 수신비동의<span>({historyList.sum.count_deny.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-primary" value="3" className=""><RiCircleFill /> 발송 완료<span>({talkList.sum.count_success.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-warning" value="4" className=""><RiCircleFill /> 발송 중<span>({talkList.sum.count_ing.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-success" value="5" className=""><RiCircleFill /> 발송 예약<span>({talkList.sum.count_ready.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-danger" value="6" className=""><RiCircleFill /> 발송 실패<span>({talkList.sum.count_fail.toLocaleString()})</span></ToggleButton>
-							</ButtonGroup>
-						</div>
 						<div className="table__wrap mt-4">
 							<Row className="table__head">
 								<Col>
@@ -495,7 +473,7 @@ const Send = () => {
 												<span className={"send__status " + Config.getPushStatuCss(item.status)}><RiCircleFill />{Config.getPushStatuName(item.status)}</span>
 												<td>{Config.getSourcePathName(item.source_path)}</td>
 												<td>{item.name}({item.email})</td>
-												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.title}</div></td>
+												<td className="text-start"><div className="text-truncate " >{item.title}</div></td>
 												<td>{item.count_total.toLocaleString()}</td>
 												<td>{item.count_deny.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>
