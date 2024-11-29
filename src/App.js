@@ -43,7 +43,7 @@ const App = () => {
 		</Routes>
 		<Modal show={show} onHide={setShow} centered size="sm" className="normalType">
 			<Modal.Header closeButton>
-				<Modal.Title>Title 2222</Modal.Title>
+				<Modal.Title>quebon modal</Modal.Title>
 			</Modal.Header>
 			<Modal.Body>
 						.P8파일을 변경하면 푸시 발송 후 등록된 토큰이 삭제될 수 있습니다.<br />

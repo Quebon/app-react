@@ -133,7 +133,7 @@ const AdminDetail = () => {
 						</Col>
 						<Col className="text-end">
 							<Button variant="secondary" data-act="delete" onClick={eventHandle}>아이디 삭제</Button>
-							<Button variant="secondary ms-2" data-act="resetPW" onClick={eventHandle}>임시 비밀번호 삭제</Button>
+							<Button variant="secondary ms-2 hide" data-act="resetPW" onClick={eventHandle}>임시 비밀번호 삭제</Button>
 							<Button variant="primary ms-2" data-act="modify" onClick={eventHandle}>수정</Button>
 						</Col>
 					</Row>

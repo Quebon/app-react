@@ -890,7 +890,7 @@ const Push = () => {
 						<div className="sub__header mt-3">
 							<h3 className="sub__header-title">메시지</h3>
 							<div className="sub__header-button">
-								<Button variant="dark ms-2" size="sm" data-act="pushPreview" onClick={eventHandle}>미리보기</Button>
+								<Button variant="dark ms-2 hide" size="sm" data-act="pushPreview" onClick={eventHandle}>미리보기</Button>
 							</div>
 						</div>
 						<div className="table__wrap mt-2">

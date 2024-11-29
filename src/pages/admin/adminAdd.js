@@ -103,7 +103,7 @@ const AdminAdd = () => {
 			if (!userIdRegex.test(frm.login_id.value)) return false;
 		}
 
-		const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{4,}$/;
+		const passwordRegex =  /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()])[a-zA-Z\d!@#$%^&*()]{4,}$/;
 		if (!passwordRegex.test(frm.login_pw.value)) return false;
 
 		const userNameRegex = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{1,30}$/;
