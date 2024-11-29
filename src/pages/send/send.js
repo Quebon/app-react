@@ -33,6 +33,12 @@ const Send = () => {
 	const [talkList, setTalkList] =useState({list:[], sum:{count_total:0, count_deny:0, count_success:0, count_fail:0, count_ing:0, count_ready:0, count_recv:0, count_open:0}});
 	const [dailyList, setDailyList] = useState([]);
 
+	const [pushStatus1, setPushStatus1] = useState("total");
+	const [pushStatus2, setPushStatus2] = useState("total");
+
+	let selectedStatus1 = "total";
+	let selectedStatus2 = "total";
+
 	useEffect(() => {
 		getAppList();
 	}, []);
@@ -52,13 +58,39 @@ const Send = () => {
 		else if(act_v == "dailySearch") {
 			getDailyList(1);
 		}
+		else if(act_v == "filter1") {
+			let f_v = evo.getAttribute("data-id");
+			selectedStatus1 = f_v;
+			setPushStatus1(selectedStatus1);
+			Config.log("f_v=" + f_v);
+			getHistoryList(1);
+		}
+		else if(act_v == "filter2") {
+			let f_v = evo.getAttribute("data-id");
+			selectedStatus2 = f_v;
+			setPushStatus2(selectedStatus2);
+			Config.log("f_v=" + f_v);
+			getTalkList(1);
+		}
 		else if(act_v == "downloadHistory") {
 			let fm = document.querySelector("#frmSearch_1");
+			if(pushStatus1 == "total") {
+				fm.pushStatus.value = "";
+			}
+			else {
+				fm.pushStatus.value = pushStatus1;
+			}
 			fm.action = Config.host_api + "/push/downloadExcelPushHistoryList";
 			fm.submit();
 		}
 		else if(act_v == "downloadTalk") {
 			let fm = document.querySelector("#frmSearch_2");
+			if(pushStatus2 == "total") {
+				fm.pushStatus.value = "";
+			}
+			else {
+				fm.pushStatus.value = pushStatus2;
+			}
 			fm.action = Config.host_api + "/push/downloadExcelPushHistoryList2";
 			fm.submit();
 		}
@@ -100,6 +132,9 @@ const Send = () => {
 		const frm = document.querySelector("#frmSearch_1");
 		const formData = new FormData(frm);
 		const data = Object.fromEntries(formData.entries());
+		if(selectedStatus1 != "total") {
+			data["pushStatus"] = selectedStatus1;
+		}
 		data["page"] = pg - 1 + 1;
 		data["pageSize"] = 10;
 		pushStat.getHistoryList({data:data, callback:respHistoryList});
@@ -110,6 +145,9 @@ const Send = () => {
 		const frm = document.querySelector("#frmSearch_2");
 		const formData = new FormData(frm);
 		const data = Object.fromEntries(formData.entries());
+		if(selectedStatus2 != "total") {
+			data["pushStatus"] = selectedStatus2;
+		}
 		data["page"] = pg - 1 + 1;
 		data["pageSize"] = 10;
 		pushStat.getHistoryList2({data:data, callback:respTalkList});
@@ -127,6 +165,9 @@ const Send = () => {
 
 	const respHistoryList = function(obj) {
 		if(obj.list) {
+			if(obj.sum == null) {
+				obj.sum = {count_total:0, count_deny:0, count_success:0, count_fail:0, count_ing:0, count_ready:0, count_recv:0, count_open:0};
+			}
 			setHistoryList({list:obj.list, sum:obj.sum});
 			pushHistoryInfo.totalRecords = obj.count;
 			let items = CommonUI.pagenationItems({currPage:pushHistoryInfo.currPage, totalRecords:pushHistoryInfo.totalRecords, eventHandler:function(pg) {
@@ -142,7 +183,10 @@ const Send = () => {
 	};
 
 	const respTalkList = function(obj) {
-		if(obj.list) {
+		if(obj != null && obj.list) {
+			if(obj.sum == null) {
+				obj.sum = {count_total:0, count_deny:0, count_success:0, count_fail:0, count_ing:0, count_ready:0, count_recv:0, count_open:0};
+			}
 			setTalkList({list:obj.list, sum:obj.sum});
 			pushTalkInfo.totalRecords = obj.count;
 			let items = CommonUI.pagenationItems({currPage:pushTalkInfo.currPage, totalRecords:pushTalkInfo.totalRecords, eventHandler:function(pg) {
@@ -184,8 +228,19 @@ const Send = () => {
 						<div className="main__header">
 							<h2 className="main__header-title">푸시 발송이력</h2>	
 						</div>
+						{/* 발송 상태별 탭 */}
+						<div className="send__status-wrap">
+							<ButtonGroup className="mt-2 mb-4">
+								<ToggleButton variant={pushStatus1 == "total"?"outline-dark active": "outline-dark"} value="1"  className="" data-act="filter1" data-id="total" onClick={eventHandle}>전체<span>({historyList.sum.count_total.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant={pushStatus1 == "C"?"outline-primary active": "outline-primary"} value="3" className="" data-act="filter1" data-id="C" onClick={eventHandle}><RiCircleFill /> 발송 완료<span>({historyList.sum.count_success.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant={pushStatus1 == "I"?"outline-warning active": "outline-warning"} value="4" className="" data-act="filter1" data-id="I" onClick={eventHandle}><RiCircleFill /> 발송 중<span>({historyList.sum.count_ing.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant={pushStatus1 == "R"?"outline-success active": "outline-success"} value="5" className="" data-act="filter1" data-id="R" onClick={eventHandle}><RiCircleFill /> 발송 예약<span>({historyList.sum.count_ready.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant={pushStatus1 == "F"?"outline-danger active": "outline-danger"} value="6" className="" data-act="filter1" data-id="F" onClick={eventHandle}><RiCircleFill /> 발송 실패<span>({historyList.sum.count_fail.toLocaleString()})</span></ToggleButton>
+							</ButtonGroup>
+						</div>
 						{/* 검색 영역 */}
 						<Form name="frmSearch_1" id="frmSearch_1" method="post" >
+							<input type="hidden" name="pushStatus" id="pushStatus" value=""/>
 							<Row className="search__form">
 								<Col>
 									<Row className="search__form-group">
@@ -249,17 +304,6 @@ const Send = () => {
 								</Col>
 							</Row>
 						</Form>
-						{/* 발송 상태별 탭 */}
-						<div className="send__status-wrap">
-							<ButtonGroup className="mt-4 ">
-								<ToggleButton variant="outline-dark" value="1" checked className="">전체<span>({historyList.sum.count_total.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-secondary" value="2" className=""><RiCircleFill /> 수신비동의<span>({historyList.sum.count_deny.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-primary" value="3" className=""><RiCircleFill /> 발송 완료<span>({historyList.sum.count_success.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-warning" value="4" className=""><RiCircleFill /> 발송 중<span>({historyList.sum.count_ing.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-success" value="5" className=""><RiCircleFill /> 발송 예약<span>({historyList.sum.count_ready.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-danger" value="6" className=""><RiCircleFill /> 발송 실패<span>({historyList.sum.count_fail.toLocaleString()})</span></ToggleButton>
-							</ButtonGroup>
-						</div>
 						<div className="table__wrap mt-4">
 							<Row className="table__head">
 								<Col>
@@ -281,9 +325,9 @@ const Send = () => {
 										<th scope='col'>메시지</th>
 										<th scope='col'>발송대상</th>
 										<th scope='col'>수신비동의</th>
-										<th scope='col'>성공</th>
-										<th scope='col'>실패</th>
-										<th scope='col'>수신</th>
+										<th scope='col'>전송성공</th>
+										<th scope='col'>전송실패</th>
+										<th scope='col'>앱수신</th>
 										<th scope='col'>오픈</th>
 									</tr>
 								</thead>
@@ -298,7 +342,7 @@ const Send = () => {
 												<span className={"send__status " + Config.getPushStatuCss(item.status)}><RiCircleFill />{Config.getPushStatuName(item.status)}</span>
 												<td>{item.source_path == 'test'?'테스트':'푸시'}</td>
 												<td>{item.source_path == 'test'?'-':Config.getTargetName(item.target_type)}</td>
-												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.push_label}</div></td>
+												<td className="text-start"><div className="text-truncate " >{item.push_label}</div></td>
 												<td>{item.count_total.toLocaleString()}</td>
 												<td>{item.count_deny.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>
@@ -323,8 +367,19 @@ const Send = () => {
 						<div className="main__header">
 							<h2 className="main__header-title">서버연동 발송이력</h2>	
 						</div>
+						{/* 발송 상태별 탭 */}
+						<div className="send__status-wrap">
+							<ButtonGroup className="mt-2 mb-4 ">
+							<ToggleButton variant={pushStatus2 == "total"?"outline-dark active": "outline-dark"} value="1"  className="" data-act="filter2" data-id="total" onClick={eventHandle}>전체<span>({talkList.sum.count_total.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant={pushStatus2 == "C"?"outline-primary active": "outline-primary"} value="3" className="" data-act="filter2" data-id="C" onClick={eventHandle}><RiCircleFill /> 발송 완료<span>({talkList.sum.count_success.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant={pushStatus2 == "I"?"outline-warning active": "outline-warning"} value="4" className="" data-act="filter2" data-id="I" onClick={eventHandle}><RiCircleFill /> 발송 중<span>({talkList.sum.count_ing.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant={pushStatus2 == "R"?"outline-success active": "outline-success"} value="5" className="" data-act="filter2" data-id="R" onClick={eventHandle}><RiCircleFill /> 발송 예약<span>({talkList.sum.count_ready.toLocaleString()})</span></ToggleButton>
+								<ToggleButton variant={pushStatus2 == "F"?"outline-danger active": "outline-danger"} value="6" className="" data-act="filter2" data-id="F" onClick={eventHandle}><RiCircleFill /> 발송 실패<span>({talkList.sum.count_fail.toLocaleString()})</span></ToggleButton>
+							</ButtonGroup>
+						</div>
 						{/* 검색 영역 */}
 						<Form name="frmSearch_2" id="frmSearch_2" method="post">
+							<input type="hidden" name="pushStatus" id="pushStatus" value=""/>
 							<Row className="search__form">
 								<Col>
 									<Row className="search__form-group">
@@ -380,17 +435,6 @@ const Send = () => {
 								</Col>
 							</Row>
 						</Form>
-						{/* 발송 상태별 탭 */}
-						<div className="send__status-wrap">
-							<ButtonGroup className="mt-4 ">
-								<ToggleButton variant="outline-dark" value="1" checked className="">전체<span>({talkList.sum.count_total.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-secondary" value="2" className=""><RiCircleFill /> 수신비동의<span>({historyList.sum.count_deny.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-primary" value="3" className=""><RiCircleFill /> 발송 완료<span>({talkList.sum.count_success.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-warning" value="4" className=""><RiCircleFill /> 발송 중<span>({talkList.sum.count_ing.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-success" value="5" className=""><RiCircleFill /> 발송 예약<span>({talkList.sum.count_ready.toLocaleString()})</span></ToggleButton>
-								<ToggleButton variant="outline-danger" value="6" className=""><RiCircleFill /> 발송 실패<span>({talkList.sum.count_fail.toLocaleString()})</span></ToggleButton>
-							</ButtonGroup>
-						</div>
 						<div className="table__wrap mt-4">
 							<Row className="table__head">
 								<Col>
@@ -429,7 +473,7 @@ const Send = () => {
 												<span className={"send__status " + Config.getPushStatuCss(item.status)}><RiCircleFill />{Config.getPushStatuName(item.status)}</span>
 												<td>{Config.getSourcePathName(item.source_path)}</td>
 												<td>{item.name}({item.email})</td>
-												<td className="text-start"><div className="text-truncate " style={{maxWidth:"250px"}}>{item.title}</div></td>
+												<td className="text-start"><div className="text-truncate " >{item.title}</div></td>
 												<td>{item.count_total.toLocaleString()}</td>
 												<td>{item.count_deny.toLocaleString()}</td>
 												<td>{item.count_success.toLocaleString()}</td>

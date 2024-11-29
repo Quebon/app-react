@@ -356,7 +356,7 @@ const Push = () => {
 											<Form.Select aria-label="" name="app_id" id="app_id">
 												{
 													appList.map((item, index) =>
-														<option key={item.seq} value={item.app_id}>{item.app_name}</option>
+														<option key={item.seq} selected={item.app_id=='com.quebon.tv'?'true':'false'} value={item.app_id}>{item.app_name}</option>
 													)
 												}
 											</Form.Select>
@@ -786,7 +786,7 @@ const Push = () => {
 											<Form.Select aria-label="" name="app_id" id="app_id">
 												{
 													appList.map((item, index) =>
-														<option key={item.seq} value={item.app_id}>{item.app_name}</option>
+														<option key={item.seq} selected={item.app_id=='com.quebon.tv'?'true':'false'} value={item.app_id}>{item.app_name}</option>
 													)
 												}
 											</Form.Select>
