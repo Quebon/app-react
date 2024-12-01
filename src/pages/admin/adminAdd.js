@@ -103,8 +103,20 @@ const AdminAdd = () => {
 			if (!userIdRegex.test(frm.login_id.value)) return false;
 		}
 
-		const passwordRegex =  /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()])[a-zA-Z\d!@#$%^&*()]{4,}$/;
-		if (!passwordRegex.test(frm.login_pw.value)) return false;
+		if(seq > 0) {
+			if(frm.login_pw.value == "") {
+
+			}
+			else {
+				const passwordRegex =  /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()])[a-zA-Z\d!@#$%^&*()]{4,}$/;
+				if (!passwordRegex.test(frm.login_pw.value)) return false;
+			}
+
+		}
+		else {
+			const passwordRegex =  /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*()])[a-zA-Z\d!@#$%^&*()]{4,}$/;
+			if (!passwordRegex.test(frm.login_pw.value)) return false;
+		}
 
 		const userNameRegex = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{1,30}$/;
 		if (!userNameRegex.test(frm.user_name.value)) return false;
