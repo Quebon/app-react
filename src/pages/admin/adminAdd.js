@@ -195,8 +195,8 @@ const AdminAdd = () => {
 								<td className="text-start">
 									<Form.Select aria-label="" name="user_level" id="user_level">
 										<option value="">권한을 선택하세요.</option>
-										<option value="A">어드민</option>
-										<option value="O">운영자</option>
+										<option value="A" >어드민</option>
+										<option value="O" >운영자</option>
 									</Form.Select>
 								</td>
 							</tr>

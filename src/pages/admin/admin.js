@@ -229,7 +229,7 @@ const Admin = () => {
 												<td><Link to={"/admin/view/" + item.seq}>{item.login_id}</Link></td>
 												<td><Link to={"/admin/view/" + item.seq}>{item.user_name}</Link></td>
 												<td>{item.email}</td>
-												<td>운영자</td>
+												<td>{(item.user_level == "A")? "어드민": "운영자"}</td>
 												<td>
 													<Button size="sm" variant="outline-dark" data-act="modify" data-id={item.seq} onClick={eventHandle}>수정</Button>
 													<Button size="sm" variant="outline-dark ms-2" data-act="delete" data-id={item.seq} onClick={eventHandle}>삭제</Button>
