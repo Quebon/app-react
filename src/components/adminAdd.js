@@ -102,8 +102,12 @@ const AdminAdd = () => {
 			if (!userIdRegex.test(frm.login_id.value)) return false;
 		}
 
-		const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
-		if (!passwordRegex.test(frm.login_pw.value)) return false;
+		if(seq > 0 && frm.login_pw.value == "") {
+		}
+		else {
+			const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+			if (!passwordRegex.test(frm.login_pw.value)) return false;
+		}
 
 		const userNameRegex = /^[ㄱ-ㅎ가-힣a-zA-Z0-9]{1,30}$/;
 		if (!userNameRegex.test(frm.user_name.value)) return false;
@@ -182,8 +186,8 @@ const AdminAdd = () => {
 								<td className="text-start">
 									<Form.Select aria-label="" name="user_level" id="user_level">
 										<option value="">권한을 선택하세요.</option>
-										<option value="A">어드민</option>
-										<option value="O">운영자</option>
+										<option value="A" {info?(info.user_level=='A':'selected':''):''}>어드민</option>
+										<option value="O" {info?(info.user_level=='O':'selected':''):''}>운영자</option>
 									</Form.Select>
 								</td>
 							</tr>

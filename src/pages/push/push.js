@@ -28,24 +28,30 @@ import Config from '../../common/config.js';
 import {Link} from "react-router-dom";
 import app from '../../common/App';
 import sender from '../../common/Sender';
+import messageTemplate from '../../common/MessageTemplate.js';
 import pushStat from '../../common/PushStat.js';
 import pushInput from '../../common/PushInput.js';
 import {CommonUI} from '../../common/commonUI';
 
 import PopupPushTest from '../../components/PopupPushTest.tsx';
 import PopupPushExcelUpload from '../../components/PopupPushExcelUpload.tsx';
+import PopupPushPreview from '../../components/PopupPushPreview.tsx';
+import PopupTemplateList from '../../components/PopupTemplageList.tsx';
 
 const Push = () => {
 	const {seq} = useParams();
 	const [today, setToday] = useState("");
+	const [baseNode, setBaseNode] = useState({object:null , name:""});	// 푸시메세지, 이미지 메세지 선택 정보
 
 	const [showPushTest, setShowPushTest] = useState(false);	// 테스트발송 팝업
 	const [showExcel, setShowExcel] = useState(false);			// 엑셀 업로드 팝업
+	const [previewModal, setPreviewModal] = useState(false);	// 미리보기
+	const [showTemplateList, setShowTemplateList] = useState(false);	// 템플릿 불러오기
+
 	//const [pushSendInfo, setPushSendInfo] = useState(null);		// 발송 대상 선택 정보
 
 	const [pushTestData, setPushTestData] = useState({sendInfo:{}});	// 테스트발송 팝업에 전달할 푸시 등록 정보
 
-	const [baseNode, setBaseNode] = useState({object:null , name:""});	// 푸시메세지, 이미지 메세지 선택 정보
 
 	const [targetType1, setTargetType1] = useState("A");	// 푸시메세지의 대상 종류
 	const [targetType2, setTargetType2] = useState("A");	// 이미지메세지의 대상 종류
@@ -54,13 +60,14 @@ const Push = () => {
 	const [userList, setUserList] = useState([]);		// 엑셀 업로드 또는 대상 리스트를 통해 선택된 사용자 정보 리스트.
 
 
-
-
 	const [openSearchModal, setOpenSearchModal] = useState(false);
 
-	const [templateModal, setTemplateModal] = useState(false);
-	const [previewModal, setPreviewModal] = useState(false);
+	//const [templateModal, setTemplateModal] = useState(false);
 	const [checkContents, setCheckContents] = useState(true);
+
+	const [contentLen, setContentLen] = useState(0);
+	const [btnTemplateSaveFlag, setBtnTemplateSaveFlag] = useState("disabled");	// 템플릿에 저장 버튼 활성화/비활서오하
+	const [selectedTemplateInfo, setSelectedTemplateInfo] = useState(null);
 
 	const [messageType1, setMessageType1] = useState("info");
 	const [messageType2, setMessageType2] = useState("info");
@@ -138,10 +145,7 @@ const Push = () => {
 
 		if(ev.type == "click") {
 			if(act_v == "openTemplage") {	// 템플릿 불러오기. 
-				setTemplateModal(true);				
-			}
-			else if(act_v == "pushPreview") {	// 미리보기
-				setPreviewModal(true);
+				setShowTemplateList(true);				
 			}
 			else if(act_v == "add_excel") {	// 엑셀로 대상 추가하기
 				if(base.id == "frmPushMsg") {
@@ -161,9 +165,40 @@ const Push = () => {
 				}
 				setOpenSearchModal(true);
 			}
+			else if(act_v == "pushPreview") {	// 미리보기
+				if(validation_preview(base)) {
+					const formData = new FormData(base);
+					const data = Object.fromEntries(formData.entries());
+					Config.log(data);
+					pushTestData.sendInfo = data;
+					setPreviewModal(true);
+				}
+				else {
+					alert("모든 정보를 규칙에 맞게 입력해야 발송 가능합니다.");
+				}
+			}
+			else if(act_v == "saveTemplage") {	// 미리보기
+				if(validation_preview(base)) {
+					const formData = new FormData(base);
+					const data = Object.fromEntries(formData.entries());
+					Config.log(data);
+					messageTemplate.addInfo({data:data, callback:function(json) {
+						if(json.seq > 0) {
+							alert("저장했습니다.");
+							json.data["contents"] = json.data.content;
+							setSelectedTemplateInfo(json.data);
+							setBtnTemplateSaveFlag("disabled");
+						}
+						else {
+							alert("저장에 실패했습니다.\n다시 시도해 주세요.");
+						}
+					}});
+				}
+				else {
+					alert("모든 정보를 규칙에 맞게 입력해야 발송 가능합니다.");
+				}
+			}
 			else if(act_v == "send_test") {	// 테스트 전송하기
-				//setShowPushTest(true);
-				//return;
 				if(validation_req(base)) {
 					const formData = new FormData(base);
 					const data = Object.fromEntries(formData.entries());
@@ -197,6 +232,28 @@ const Push = () => {
 				}
 				else {
 					alert("모든 정보를 규칙에 맞게 입력해야 발송 가능합니다.");
+				}
+			}
+			else if(act_v == "btn_clear") {
+				let id_v = evo.getAttribute("data-id");
+				Config.log("id_v=" + id_v);
+				if(id_v == "1") {
+					base.link_name_1.value = "";
+					base.link_type_1.value = "";
+					base.link_url_mobile_1.value = "";
+					base.link_url_pc_1.value = "";
+				}
+				else if(id_v == "2") {
+					base.link_name_2.value = "";
+					base.link_type_2.value = "";
+					base.link_url_mobile_2.value = "";
+					base.link_url_pc_2.value = "";
+				}
+				else if(id_v == "3") {
+					base.link_name_3.value = "";
+					base.link_type_3.value = "";
+					base.link_url_mobile_3.value = "";
+					base.link_url_pc_3.value = "";
 				}
 			}
 			ev.preventDefault();
@@ -251,6 +308,50 @@ const Push = () => {
 					setMessageType2(ev.target.value);
 				}
 			}
+			else if(act_v == "form1_title") {
+				Config.log("selected data=>");
+				Config.log(selectedTemplateInfo);
+				if(selectedTemplateInfo != null) {
+					if(selectedTemplateInfo.title != base.title.value || selectedTemplateInfo.contents != base.content.value) {
+						setBtnTemplateSaveFlag("");
+					}
+					else {
+						setBtnTemplateSaveFlag("disabled");
+					}
+				}
+				else {
+					if(base.title.value != "" && base.content.value != "") {
+						setBtnTemplateSaveFlag("");
+					}
+					else {
+						setBtnTemplateSaveFlag("disabled");
+					}
+				}
+			}
+			else if(act_v == "form1_content") {
+				if(base.check_contents.checked) {	
+					setContentLen(base.content.value.length);
+				}
+				else {
+					setContentLen(0);
+				}
+				if(selectedTemplateInfo != null) {
+					if(selectedTemplateInfo.title != base.title.value || selectedTemplateInfo.contents != base.content.value) {
+						setBtnTemplateSaveFlag("");
+					}
+					else {
+						setBtnTemplateSaveFlag("disabled");
+					}
+				}
+				else {
+					if(base.title.value != "" && base.content.value != "") {
+						setBtnTemplateSaveFlag("");
+					}
+					else {
+						setBtnTemplateSaveFlag("disabled");
+					}
+				}
+			}
 			else if(act_v == "send_type") {		// 예약발송/ 즉시발송.
 				//ev.persist();
 				console.log(ev.target.value);
@@ -262,7 +363,6 @@ const Push = () => {
 				}
 			}
 			else if(act_v == "limit_night") {	// 야간 광고 제한 정보 변경.
-				//ev.persist();
 				console.log(ev.target.value);
 				if(base.id == "frmPushMsg") {
 					setLimitNight1(ev.target.value );
@@ -277,11 +377,35 @@ const Push = () => {
 				if(base.id == "frmPushMsg") {
 					setCheckContents(!checkContents );
 				}
+				if(base.check_contents.checked) {	
+					setContentLen(base.content.value.length);
+				}
+				else {
+					setContentLen(0);
+				}
 			}
 			return true;
 		}
 		ev.preventDefault();
 	};	
+
+	const validation_preview = (frm) => {
+		if(frm == null) return false;
+
+		if(!/^.{1,50}$/.test(frm.title.value))	return false;
+
+		if(frm.id == "frmWelcomeMsg") {
+			if(!/^.{1,50}$/.test(frm.emtitle.value))	return false;
+			if(!/^.{1,200}$/.test(frm.webview_url.value))	return false;
+		}
+		else if(frm.id == "frmPushMsg") {
+			if(sendType1 == "R") {
+				if(!/^.{1,10}$/.test(frm.reserve_date.value))	return false;
+			}
+		}
+
+		return true;
+    }
 
 	const validation_req = (frm) => {
 		if(frm == null) return false;
@@ -332,6 +456,13 @@ const Push = () => {
 
 		return true;
     }
+
+	let respTemplate = function(json) {
+		let base = baseNode.object;	//.querySelector("form");
+		base.title.value = json.title;
+		setSelectedTemplateInfo(json);
+		setBtnTemplateSaveFlag("disabled");
+	}
 
 	return(
 		<div className="wrapper">
@@ -499,17 +630,17 @@ const Push = () => {
 						</div>
 						{/* //대상 선택 */}
 						{/* 메시지 입력 */}
-						<div className="sub__header mt-3 hide">
+						<div className="sub__header mt-3">
 							<h3 className="sub__header-title">메시지 입력</h3>
 							<div className="sub__header-button">
-								<Button variant="dark" size="sm" data-act="saveTemplage" onClick={eventHandle}>템플릿에 저장</Button>
+								<Button variant="dark" className={btnTemplateSaveFlag} size="sm" data-act="saveTemplage" onClick={eventHandle}>템플릿에 저장</Button>
 								<Button variant="dark ms-2" size="sm" data-act="pushPreview" onClick={eventHandle}>미리보기</Button>
 							</div>
 						</div>
 						<div className="table__wrap mt-2">
 							<Table bordered responsive className="table__view">
 								<tbody>
-									<tr className="hide">
+									<tr className="">
 										<th scope='row'>템플릿</th>
 										<td className="text-start">
 											<div>
@@ -521,13 +652,13 @@ const Push = () => {
 										<th scope='row'>제목</th>
 										<td className="text-start d-flex align-items-center">
 											<strong className={"me-2" + (messageType1 == "info" ? " d-none":"")}>(광고)</strong>
-											<Form.Control type="text" name="title" id="title" placeholder="최대 50자 입력 가능합니다." maxLength={50}/>
+											<Form.Control type="text" name="title" id="title" data-act="form1_title" onChange={eventHandle} placeholder="최대 50자 입력 가능합니다." maxLength={50} defaultValue={ (selectedTemplateInfo != null) ? selectedTemplateInfo.title : ""} />
 										</td>
 									</tr>
 									<tr>
 										<th scope='row'>본문</th>
 										<td className="text-start">
-											<Form.Control as="textarea" rows={5} name="content" id="content" placeholder="본문 내용을 입력하세요. &#10;광고 메시지 주의사항 &#10;1. 업체명 혹은 서비스명을 표기 또는 기본 이미지의 회사로고 유지 &#10;2.제목(본문) 앞 '(광고)'를 반드시 표기 &#10;3.'(수신거부:메뉴>설정)' 필수 표기" />
+											<Form.Control as="textarea" rows={5} name="content" id="content" data-act="form1_content" onChange={eventHandle} defaultValue={ (selectedTemplateInfo != null) ? selectedTemplateInfo.contents : ""} placeholder="본문 내용을 입력하세요. &#10;광고 메시지 주의사항 &#10;1. 업체명 혹은 서비스명을 표기 또는 기본 이미지의 회사로고 유지 &#10;2.제목(본문) 앞 '(광고)'를 반드시 표기 &#10;3.'(수신거부:메뉴>설정)' 필수 표기" />
 											<Form.Group className="mt-2">
 												<Form.Check
 													label="체크를 해제하면 푸시메시지에서 본문은 전송되지 않습니다. 본문  유효성 검사를 하지 않습니다. "
@@ -541,7 +672,7 @@ const Push = () => {
 													checked={checkContents == true}
 												/>
 											</Form.Group>
-											<div className="text-end">0자/ 500자 </div>
+											<div className="text-end">{contentLen.toLocaleString()}자/ 500자 </div>
 										</td>
 									</tr>
 								</tbody>
@@ -599,7 +730,7 @@ const Push = () => {
 														</Form.Group>	
 													</Row>
 												</Col>
-												<Col lg={1}><Button variant="outline-dark" size="sm">지우기</Button></Col>
+												<Col lg={1}><Button variant="outline-dark" size="sm" data-id="1" data-act="btn_clear" onClick={eventHandle}>지우기</Button></Col>
 											</Row>
 											<Row className="mt-3">
 												<Col lg={1} className="align-content-center">두번째 버튼</Col>
@@ -621,7 +752,7 @@ const Push = () => {
 														</Form.Group>	
 													</Row>
 												</Col>
-												<Col lg={1}><Button variant="outline-dark" size="sm">지우기</Button></Col>
+												<Col lg={1}><Button variant="outline-dark" size="sm" data-id="2" data-act="btn_clear" onClick={eventHandle}>지우기</Button></Col>
 											</Row>
 											<Row className="mt-3">
 												<Col lg={1} className="align-content-center">세번째 버튼</Col>
@@ -643,7 +774,7 @@ const Push = () => {
 														</Form.Group>	
 													</Row>
 												</Col>
-												<Col lg={1}><Button variant="outline-dark" size="sm">지우기</Button></Col>
+												<Col lg={1}><Button variant="outline-dark" size="sm" data-id="3" data-act="btn_clear" onClick={eventHandle}>지우기</Button></Col>
 											</Row>
 										</td>
 									</tr>
@@ -890,7 +1021,7 @@ const Push = () => {
 						<div className="sub__header mt-3">
 							<h3 className="sub__header-title">메시지</h3>
 							<div className="sub__header-button">
-								<Button variant="dark ms-2 hide" size="sm" data-act="pushPreview" onClick={eventHandle}>미리보기</Button>
+								<Button variant="dark ms-2" size="sm" data-act="pushPreview" onClick={eventHandle}>미리보기</Button>
 							</div>
 						</div>
 						<div className="table__wrap mt-2">
@@ -1048,70 +1179,8 @@ const Push = () => {
 
 			<PopupPushTest isShow={showPushTest} callback={respTest} close={setShowPushTest} data={pushTestData}></PopupPushTest>
 			<PopupPushExcelUpload isShow={showExcel} callback={respExcel} close={setShowExcel}></PopupPushExcelUpload>
-
-
-
-
-
-			{/* 템플릿 선택 팝업 */}
-			<Modal show={templateModal} onHide={setTemplateModal} centered className="">
-				<Modal.Header closeButton>
-					<Modal.Title>템플릿 불러오기</Modal.Title>
-				</Modal.Header>
-				<Modal.Body>
-							{/* 검색 영역 */}
-							<Form name="frmPopTest" id="frmPopTest">
-								<Row className="search__form">
-									<Col>
-										<Row className="search__form-group">
-											<Col lg="auto">
-												<Form.Select aria-label="system" className="d-inline-block w-auto" name="search_key" id="search_key">
-													<option value="title">제목</option>
-													<option value="contents">본문</option>
-												</Form.Select>
-												<Form.Control type="text" className="d-inline-block w-auto ms-1" placeholder="" />
-											</Col>
-										</Row>
-									</Col>
-									<Col lg="2" className="text-end">
-										<Button variant="outline-primary" data-act="test_search" onClick={eventHandle}>검색</Button>
-									</Col>
-								</Row>
-							</Form>
-							<div className="table__wrap mt-4">
-								<Table bordered responsive>
-									<thead>
-										<tr>
-											<th scope='col'>등록일</th>
-											<th scope='col'>제목</th>
-											<th scope='col'선택></th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td>2024-10-12</td>
-											<td>메세지 타이틀</td>
-											<td>
-												<Button size="sm" variant="outline-dark">선택</Button>
-											</td>
-										</tr>
-									</tbody>
-								</Table>
-								<div className="table__pagination">
-									<Pagination>
-										<Pagination.Prev />
-										<Pagination.Item active>{1}</Pagination.Item>
-										<Pagination.Item>{2}</Pagination.Item>
-										<Pagination.Item>{3}</Pagination.Item>
-										<Pagination.Next />
-									</Pagination>
-								</div>
-							</div>
-						</Modal.Body>
-				<Modal.Footer>
-					<Button variant="primary" onClick={() => setTemplateModal(false)}>닫기</Button>
-				</Modal.Footer>
-			</Modal>
+			<PopupPushPreview isShow={previewModal} close={setPreviewModal} data={pushTestData}></PopupPushPreview>
+			<PopupTemplateList isShow={showTemplateList} close={setShowTemplateList} callback={respTemplate}></PopupTemplateList>
 
 
 
@@ -1188,36 +1257,6 @@ const Push = () => {
 					<Button variant="primary" onClick={() => setOpenSearchModal(false)}>닫기</Button>
 				</Modal.Footer>
 			</Modal>
-
-
-			{/* 미리보기 */}
-			<Modal show={previewModal} onHide={setPreviewModal} centered size="sm">
-				<Modal.Header closeButton>
-				<Modal.Title>미리보기</Modal.Title>
-				</Modal.Header>
-				<Modal.Body>
-							<Tabs
-								defaultActiveKey="home"
-								transition={false}
-								id="noanim-tab-example"
-								className="mb-3 justify-content-center"
-							>
-								<Tab eventKey="home" title="Android">
-									<div className="preview-box">
-										Android
-									</div>
-								</Tab>
-								<Tab eventKey="profile" title="IOS">
-									<div className="preview-box">
-										IOS
-									</div>
-								</Tab>
-							</Tabs>
-						</Modal.Body>
-				<Modal.Footer>
-				<Button variant="secondary" onClick={() => setPreviewModal(false)}>닫기</Button>
-				</Modal.Footer>
-			</Modal>			
 
 		</div>
 	);

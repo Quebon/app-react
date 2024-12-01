@@ -23,19 +23,9 @@ import pushInput from '../common/PushInput.js';
 import {CommonUI} from '../common/commonUI.js';
 
 
-//export interface PopupPushTestProps {
-//	isShow?:boolean;
-//}
-
-//const PopupPushTest: React.FunctionComponent<PopupPushTestProps> = ({
-//	isShow
-//}) => {
-
 const PopupPushTest = (opt) => {
-	//let options = opt;
-	//Config.log("opt-->");
-	Config.log(opt);
-	//const [options, setOptions] = useState();
+	//Config.log("PopupPushTest opt-->");
+	//Config.log(opt);
 
 	const [open, setOpen] = useState(false);
 	const [selectedList, setSelectedList] = useState([]);

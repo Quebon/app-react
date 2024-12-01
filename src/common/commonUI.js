@@ -16,7 +16,7 @@ import Config from "../common/config";
 
 export const CommonUI = {
 	pagenationItems:(opt) => {
-		let pageSize = 10;
+		let pageSize = opt.pageSize ||  10;
 		let active = opt.currPage - 1 + 1;
 		let items = [];
 		let maxPage = Math.ceil(opt.totalRecords / pageSize);

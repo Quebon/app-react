@@ -22,6 +22,7 @@ import {
 } from "react-icons/ri";
 import Config from '../../common/config.js';
 import FileUpload from '../../components/FileUpload.tsx';
+import PopupPushView from '../../components/PopupPushPreview.tsx';
 import {Link} from "react-router-dom";
 import messageTemplate from '../../common/MessageTemplate';
 import sender from '../../common/Sender';
@@ -33,6 +34,7 @@ const Templete = () => {
 	const [templateInfo, setTemplateInfo] = useState(  {currPage:1, totalRecords:0, pageItems:[]} );
 	const [senderInfo, setSenderInfo] = useState(  {currPage:1, totalRecords:0, pageItems:[]} );
 
+	const [showView, setShowView] = useState(false);
 	const [templateItem, setTemplateItem] = useState( {seq:0, title:"", contents:"", reg_date_str:""} );
 	const [senderItem, setSenderItem] = useState( {title:"발송자 추가", seq:0, sender_id:"", sender_name:"", filename:"", reg_date_str:""} );
 
@@ -71,7 +73,7 @@ const Templete = () => {
 			let seq_v = evo.getAttribute("data-id");
 			if(window.confirm("삭제하시겠습니까?")) {
 				const data = {"seq":seq_v};
-				//msgTemplate.deleteInfo({data:data, callback:response2});
+				messageTemplate.deleteInfo({data:data, callback:respTemplateDelete});
 			}
 		}
 		else if(act_v == "addSender") {
@@ -206,6 +208,22 @@ const Templete = () => {
 			alert("저장에 실패하였습니다.\n다시 시도해주세요.");
 		}
 	};
+	const respTemplateDelete = function(obj) {
+		if(obj.seq > 0) {
+			alert("삭제하였습니다.");
+			getTemplateList(templateInfo.currPage);
+		}
+		else {
+			alert("삭제에 실패하였습니다.\n다시 시도해주세요.");
+		}
+	};
+
+	const respView = function(obj) {
+		if(obj.seq > 0) {
+			getTemplateList(templateInfo.currPage);
+		}
+	};
+
 
 	const respSenderDelete = function(obj) {
 		if(obj.seq > 0) {
@@ -219,6 +237,7 @@ const Templete = () => {
 
 	return(
 		<div className="wrapper">
+			<PopupPushView isShow={showView} callback={respView} close={setShowView} data={templateItem}></PopupPushView>
 			<Container as="header">
 				<Header />	
 			</Container>
@@ -235,8 +254,8 @@ const Templete = () => {
 									<Row className="search__form-group">
 										<Col lg="auto">
 											<Form.Select name="search_key" id="search_key" aria-label="system" className="d-inline-block w-auto">
-												<option value="1">제목</option>
-												<option value="2">본문</option>
+												<option value="title">제목</option>
+												<option value="contents">본문</option>
 											</Form.Select>
 											<Form.Control type="text" name="search_val" id="search_val" className="d-inline-block w-auto ms-1" placeholder="" />
 										</Col>
@@ -270,9 +289,9 @@ const Templete = () => {
 										<tr>
 											<td>{item.reg_date_str}</td>
 											<td className="text-start">{item.title}</td>
-											<td className="text-start">{item.contents}</td>
+											<td className="text-start max60"><div className="contents max100">{item.contents}</div></td>
 											<td>
-												<Button size="sm" variant="outline-dark" data-act="senderDelete" data-id={item.seq} onClick={eventHandle}>삭제</Button>
+												<Button size="sm" variant="outline-dark" data-act="delete" data-id={item.seq} onClick={eventHandle}>삭제</Button>
 											</td>
 										</tr>
 									)

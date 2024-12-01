@@ -136,7 +136,7 @@ const Send = () => {
 			data["pushStatus"] = selectedStatus1;
 		}
 		data["page"] = pg - 1 + 1;
-		data["pageSize"] = 10;
+		data["pageSize"] = 20;
 		pushStat.getHistoryList({data:data, callback:respHistoryList});
 	}
 
@@ -149,7 +149,7 @@ const Send = () => {
 			data["pushStatus"] = selectedStatus2;
 		}
 		data["page"] = pg - 1 + 1;
-		data["pageSize"] = 10;
+		data["pageSize"] = 20;
 		pushStat.getHistoryList2({data:data, callback:respTalkList});
 	}
 
@@ -159,7 +159,7 @@ const Send = () => {
 		const formData = new FormData(frm);
 		const data = Object.fromEntries(formData.entries());
 		data["page"] = pg - 1 + 1;
-		data["pageSize"] = 10;
+		data["pageSize"] = 20;
 		pushStat.getDailyList({data:data, callback:respDailyList});
 	}
 
@@ -170,7 +170,7 @@ const Send = () => {
 			}
 			setHistoryList({list:obj.list, sum:obj.sum});
 			pushHistoryInfo.totalRecords = obj.count;
-			let items = CommonUI.pagenationItems({currPage:pushHistoryInfo.currPage, totalRecords:pushHistoryInfo.totalRecords, eventHandler:function(pg) {
+			let items = CommonUI.pagenationItems({currPage:pushHistoryInfo.currPage, pageSize:20, totalRecords:pushHistoryInfo.totalRecords, eventHandler:function(pg) {
 				goPage(pg, "history");
 			}})
 			setPushHistoryInfo({currPage:pushHistoryInfo.currPage, totalRecords:pushHistoryInfo.totalRecords, pageItems:items});
@@ -189,7 +189,7 @@ const Send = () => {
 			}
 			setTalkList({list:obj.list, sum:obj.sum});
 			pushTalkInfo.totalRecords = obj.count;
-			let items = CommonUI.pagenationItems({currPage:pushTalkInfo.currPage, totalRecords:pushTalkInfo.totalRecords, eventHandler:function(pg) {
+			let items = CommonUI.pagenationItems({currPage:pushTalkInfo.currPage, pageSize:20, totalRecords:pushTalkInfo.totalRecords, eventHandler:function(pg) {
 				goPage(pg, "talk");
 			}});
 			pushTalkInfo.pageItems = items;
@@ -205,7 +205,7 @@ const Send = () => {
 		if(obj.list) {
 			setDailyList(obj.list);
 			pushDailyInfo.totalRecords = obj.count;
-			let items = CommonUI.pagenationItems({currPage:pushDailyInfo.currPage, totalRecords:pushDailyInfo.totalRecords, eventHandler:function(pg) {
+			let items = CommonUI.pagenationItems({currPage:pushDailyInfo.currPage, pageSize:20, totalRecords:pushDailyInfo.totalRecords, eventHandler:function(pg) {
 				goPage(pg, "daily");
 			}});
 			pushDailyInfo.pageItems = items;
@@ -283,9 +283,9 @@ const Send = () => {
 											<Form.Select aria-label="system" name="status" id="status">
 												<option value="">전체</option>
 												<option value="D">수신비동의</option>
-												<option value="C">성공</option>
+												<option value="C">전송성공</option>
 												<option value="I">발송중</option>
-												<option value="F">실패</option>
+												<option value="F">전송실패</option>
 												<option value="R">수신</option>
 												<option value="O">오픈</option>
 											</Form.Select>
@@ -414,9 +414,9 @@ const Send = () => {
 											<Form.Select aria-label="system" name="status" id="status">
 												<option value="">전체</option>
 												<option value="D">수신비동의</option>
-												<option value="C">성공</option>
+												<option value="C">전송성공</option>
 												<option value="I">발송중</option>
-												<option value="F">실패</option>
+												<option value="F">전송실패</option>
 												<option value="R">수신</option>
 												<option value="O">오픈</option>
 											</Form.Select>
@@ -456,8 +456,8 @@ const Send = () => {
 										<th scope='col'>메시지</th>
 										<th scope='col'>발송대상</th>
 										<th scope='col'>수신비동의</th>
-										<th scope='col'>성공</th>
-										<th scope='col'>실패</th>
+										<th scope='col'>전송성공</th>
+										<th scope='col'>전송실패</th>
 										<th scope='col'>수신</th>
 										<th scope='col'>오픈</th>
 									</tr>
