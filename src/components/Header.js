@@ -24,7 +24,6 @@ const Header = () => {
 	useEffect( () => {
 		if(!Auth.isLogin()) {
 			navigate("/login");
-			//history.pushState({}, "", "/#/login");
 		}
 	});
 	//const navigate = Link();

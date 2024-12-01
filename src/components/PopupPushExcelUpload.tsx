@@ -23,19 +23,9 @@ import Config from '../common/config.js';
 import pushInput from '../common/PushInput.js';
 import {CommonUI} from '../common/commonUI.js';
 
-
-//export interface PopupPushTestProps {
-//	isShow?:boolean;
-//}
-
-//const PopupPushTest: React.FunctionComponent<PopupPushTestProps> = ({
-//	isShow
-//}) => {
-
 const PopupPushExcelUpload = (opt) => {
-	//let options = opt;
-	//Config.log("opt-->");
-	Config.log(opt);
+	//Config.log("PopupPushExcelUpload opt-->");
+	//Config.log(opt);
 	const [excelCount, setExcelCount] = useState(0);
 	const [fileInfo, setFileInfo] = useState(null);
 
@@ -85,46 +75,6 @@ const PopupPushExcelUpload = (opt) => {
 			}
 		}
 	};
-
-	const eventHandle2 = (ev) => {
-		ev.preventDefault();
-		let evo = ev.currentTarget;
-		let act_v = evo.getAttribute("data-act");
-		console.log("act = " + act_v);
-		if(act_v == "search") {
-			load(1);
-		}
-		else if(act_v == "selected") {
-			var key = evo.getAttribute("data-index");
-			Config.log("Key=" + key);
-			let item = userList[key];
-			let isDup = false;
-			selectedList.forEach( (it) => {
-				if(it.user_id == item.user_id) {
-					isDup = true;
-				}
-			});
-			if(isDup == false) {
-				let items = selectedList;
-				items.push(item);
-				//selectedList.join(items);
-				setSelectedList(items);
-				Config.log("add");
-			}
-		}
-		else if(act_v == "remove") {
-			var key = evo.getAttribute("data-index");
-			Config.log("Key=" + key);
-			const items = selectedList;
-			items.splice(key, 1);
-			setSelectedList(items);
-		}
-		else if(act_v == "goTest") {
-			Config.log("test send go!!");
-		}
-
-	}
-
 
 	return (
 		<Modal show={opt.isShow} onHide={selfClose} centered size="sm">
