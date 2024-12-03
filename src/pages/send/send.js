@@ -458,7 +458,7 @@ const Send = () => {
 										<th scope='col'>수신비동의</th>
 										<th scope='col'>전송성공</th>
 										<th scope='col'>전송실패</th>
-										<th scope='col'>수신</th>
+										<th scope='col'>앱수신</th>
 										<th scope='col'>오픈</th>
 									</tr>
 								</thead>

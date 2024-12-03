@@ -37,6 +37,7 @@ import PopupPushTest from '../../components/PopupPushTest.tsx';
 import PopupPushExcelUpload from '../../components/PopupPushExcelUpload.tsx';
 import PopupPushPreview from '../../components/PopupPushPreview.tsx';
 import PopupTemplateList from '../../components/PopupTemplageList.tsx';
+import PopupSearchPushTarget from '../../components/PopupSearchPushTarget.tsx';
 
 const Push = () => {
 	const {seq} = useParams();
@@ -48,7 +49,7 @@ const Push = () => {
 	const [previewModal, setPreviewModal] = useState(false);	// 미리보기
 	const [showTemplateList, setShowTemplateList] = useState(false);	// 템플릿 불러오기
 
-	//const [pushSendInfo, setPushSendInfo] = useState(null);		// 발송 대상 선택 정보
+	const [showSearchPushTarget, setShowSearchPushTarget] = useState(false);	// 발송 대상 선택 정보
 
 	const [pushTestData, setPushTestData] = useState({sendInfo:{}});	// 테스트발송 팝업에 전달할 푸시 등록 정보
 
@@ -62,7 +63,6 @@ const Push = () => {
 
 	const [openSearchModal, setOpenSearchModal] = useState(false);
 
-	//const [templateModal, setTemplateModal] = useState(false);
 	const [checkContents, setCheckContents] = useState(true);
 
 	const [contentLen, setContentLen] = useState(0);
@@ -163,7 +163,7 @@ const Push = () => {
 				else {
 					setTargetType2("S");
 				}
-				setOpenSearchModal(true);
+				setShowSearchPushTarget(true);
 			}
 			else if(act_v == "pushPreview") {	// 미리보기
 				if(validation_preview(base)) {
@@ -460,6 +460,7 @@ const Push = () => {
 	let respTemplate = function(json) {
 		let base = baseNode.object;	//.querySelector("form");
 		base.title.value = json.title;
+		base.content.value = json.contents;
 		setSelectedTemplateInfo(json);
 		setBtnTemplateSaveFlag("disabled");
 	}
@@ -1035,7 +1036,7 @@ const Push = () => {
 										</td>
 									</tr>
 									<tr>
-										<th scope='row'>부제목</th>
+										<th scope='row'>강조 제목</th>
 										<td className="text-start">
 											<Form.Control type="text" placeholder="최대 50자 입력 가능합니다." name="emtitle" id="emtitle"/>
 										</td>
@@ -1181,82 +1182,8 @@ const Push = () => {
 			<PopupPushExcelUpload isShow={showExcel} callback={respExcel} close={setShowExcel}></PopupPushExcelUpload>
 			<PopupPushPreview isShow={previewModal} close={setPreviewModal} data={pushTestData}></PopupPushPreview>
 			<PopupTemplateList isShow={showTemplateList} close={setShowTemplateList} callback={respTemplate}></PopupTemplateList>
-
-
-
-			{/*조건검색 대상자  팝업 */}
-			<Modal show={openSearchModal} onHide={setOpenSearchModal} centered className="" size="lg">
-				<Modal.Header closeButton>
-					<Modal.Title>조건검색 대상자 불러오기</Modal.Title>
-				</Modal.Header>
-				<Modal.Body>
-							{/* 검색 영역 */}
-							<Form name="frmPopTemplate" id="frmPopTemplate">
-								<Row className="search__form">
-									<Col>
-										<Row className="search__form-group">
-											<Col lg="auto">
-												<InputGroup className="custom_datePicker">
-													<InputGroup.Text className="form-label me-2">등록일</InputGroup.Text>
-													<div className="mq-type">
-														<Form.Control type="date" name="start_date" id="start_date" className="d-inline w-auto" />
-														<InputGroup.Text>-</InputGroup.Text>
-														<Form.Control type="date" name="end_date" id="end_date" className="d-inline w-auto" />
-													</div>
-												</InputGroup>
-											</Col>
-											<Col lg="auto">
-												<Form.Select aria-label="system" className="d-inline-block w-auto" name="search_key" id="search_key">
-													<option value="">세그먼트 그룹명</option>
-												</Form.Select>
-											</Col>
-										</Row>
-									</Col>
-									<Col lg="2" className="text-end">
-										<Button variant="outline-primary" data-act="popupTemplateSearch" onClick={eventHandle}>검색</Button>
-									</Col>
-								</Row>
-							</Form>
-							<div className="table__wrap mt-4">
-								<Table bordered responsive>
-									<thead>
-										<tr>
-											<th scope='col'>No</th>
-											<th scope='col'>세그먼트 그룹명</th>
-											<th scope='col'>발송대상자</th>
-											<th scope='col'>등록자</th>
-											<th scope='col'>등록일</th>
-											<th scope='col'></th>
-										</tr>
-									</thead>
-									<tbody>
-										<tr>
-											<td>1</td>
-											<td>킨더 주니어 </td>
-											<td>600</td>
-											<td>홍길동</td>
-											<td>2022-11-23</td>
-											<td>
-												<Button size="sm" variant="outline-dark">선택</Button>
-											</td>
-										</tr>
-									</tbody>
-								</Table>
-								<div className="table__pagination">
-									<Pagination>
-										<Pagination.Prev />
-										<Pagination.Item active>{1}</Pagination.Item>
-										<Pagination.Item>{2}</Pagination.Item>
-										<Pagination.Item>{3}</Pagination.Item>
-										<Pagination.Next />
-									</Pagination>
-								</div>
-							</div>
-						</Modal.Body>
-				<Modal.Footer>
-					<Button variant="primary" onClick={() => setOpenSearchModal(false)}>닫기</Button>
-				</Modal.Footer>
-			</Modal>
+			<PopupSearchPushTarget isShow={showSearchPushTarget} close={setShowSearchPushTarget} callback={respTemplate}></PopupSearchPushTarget>
+			
 
 		</div>
 	);

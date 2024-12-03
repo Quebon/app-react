@@ -203,7 +203,7 @@ const AdminAdd = () => {
 							{isNaN(seq) ? null:
 							<tr>
 								<th scope='row'>등록일</th>
-								<td className="text-start">2024-01-01 12:34</td>
+								<td className="text-start">{info != null? info.reg_date_str : ''}}</td>
 							</tr>}
 						</tbody>
 					</Table>
