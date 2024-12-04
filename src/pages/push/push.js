@@ -202,6 +202,7 @@ const Push = () => {
 				if(validation_req(base)) {
 					const formData = new FormData(base);
 					const data = Object.fromEntries(formData.entries());
+					data["emtitle"] = data["title"];
 					Config.log(data);
 					pushTestData.sendInfo = data;
 					setShowPushTest(true);
@@ -216,6 +217,10 @@ const Push = () => {
 					const formData = new FormData(base);
 					const data = Object.fromEntries(formData.entries());
 					data["userList"] = userList;
+					data["emtitle"] = data["title"];
+					if(data["message_type"] == "info") {
+						data["limit_night"] = "N";
+					}
 					Config.log(data);
 					Config.log("send");
 					pushInput.addPushQueue({
@@ -255,6 +260,18 @@ const Push = () => {
 					base.link_url_mobile_3.value = "";
 					base.link_url_pc_3.value = "";
 				}
+				else if(id_v == "4") {
+					base.link_name_4.value = "";
+					base.link_type_4.value = "";
+					base.link_url_mobile_4.value = "";
+					base.link_url_pc_4.value = "";
+				}
+				else if(id_v == "5") {
+					base.link_name_5.value = "";
+					base.link_type_5.value = "";
+					base.link_url_mobile_5.value = "";
+					base.link_url_pc_5.value = "";
+				}
 			}
 			ev.preventDefault();
 		}
@@ -292,15 +309,31 @@ const Push = () => {
 			}
 			else if(act_v == "target_type") {	// 발송대상 (디바이스별, 엑셀, 조건검색) 선택시.
 				if(base.id == "frmPushMsg") {
+					if(ev.target.value != "A") {
+						base.target_device.selectedIndex = 0;
+						base.target_device.setAttribute("disabled", "true");
+					}
+					else {
+						base.target_device.removeAttribute("disabled");
+					}
+					setTargetUserCount1(0);
 					setTargetType1(ev.target.value );
 				}
 				else {
+					if(ev.target.value != "A") {
+						base.target_device.selectedIndex = 0;
+						base.target_device.setAttribute("disabled", "true");
+					}
+					else {
+						base.target_device.removeAttribute("disabled");
+					}
+					setTargetUserCount2(0);
 					setTargetType2(ev.target.value);
 				}
 			}
 			else if(act_v == "message_type") {	// 앱 구분(일반메시지, 광고메시지)
 				//ev.persist();
-				console.log(ev.target.value);
+				console.log("message_type=" + ev.target.value);
 				if(base.id == "frmPushMsg") {
 					setMessageType1(ev.target.value );
 				}
@@ -395,7 +428,7 @@ const Push = () => {
 		if(!/^.{1,50}$/.test(frm.title.value))	return false;
 
 		if(frm.id == "frmWelcomeMsg") {
-			if(!/^.{1,50}$/.test(frm.emtitle.value))	return false;
+			//if(!/^.{1,50}$/.test(frm.emtitle.value))	return false;
 			if(!/^.{1,200}$/.test(frm.webview_url.value))	return false;
 		}
 		else if(frm.id == "frmPushMsg") {
@@ -414,7 +447,7 @@ const Push = () => {
 		if(!/^.{1,50}$/.test(frm.title.value))	return false;
 
 		if(frm.id == "frmWelcomeMsg") {
-			if(!/^.{1,50}$/.test(frm.emtitle.value))	return false;
+			//if(!/^.{1,50}$/.test(frm.emtitle.value))	return false;
 			if(!/^.{1,200}$/.test(frm.webview_url.value))	return false;
 		}
 		else if(frm.id == "frmPushMsg") {
@@ -436,7 +469,7 @@ const Push = () => {
 			if(frm.target_device.selectedIndex == 0) return false;
 		}
 		if(frm.id == "frmWelcomeMsg") {
-			if(!/^.{1,50}$/.test(frm.emtitle.value))	return false;
+			//if(!/^.{1,50}$/.test(frm.emtitle.value))	return false;
 			if(!/^.{1,200}$/.test(frm.webview_url.value))	return false;
 			if(sendType2 == "R") {
 				if(!/^.{1,10}$/.test(frm.reserve_date.value))	return false;
@@ -777,6 +810,50 @@ const Push = () => {
 												</Col>
 												<Col lg={1}><Button variant="outline-dark" size="sm" data-id="3" data-act="btn_clear" onClick={eventHandle}>지우기</Button></Col>
 											</Row>
+											<Row className="mt-3">
+												<Col lg={1} className="align-content-center">네번째 버튼</Col>
+												<Col>
+													<Row>
+														<Form.Group as={Col} lg={6}>
+															<Form.Control size="sm" name="link_name_4" id="link_name_4" placeholder='버튼 이름 입력, 한글 10자 제한' />
+														</Form.Group>	
+														<Form.Group as={Col} lg={6}>
+															<Form.Control size="sm" name="link_url_mobile_4" id="link_url_mobile_4" placeholder='Mobile URL을 입력하세요. 영문, 특수문자 200자 제한' />
+														</Form.Group>	
+													</Row>
+													<Row className="mt-2">
+														<Form.Group as={Col} lg={6}>
+															<Form.Control size="sm" name="link_type_4" id="link_type_4" placeholder='버튼 형태 지정값, 웹링크(WL)만 사용' />
+														</Form.Group>	
+														<Form.Group as={Col} lg={6}>
+															<Form.Control size="sm" name="link_url_pc_4" id="link_url_pc_4" placeholder='PC URL을 입력하세요. 영문, 특수문자 200자 제한' />
+														</Form.Group>	
+													</Row>
+												</Col>
+												<Col lg={1}><Button variant="outline-dark" size="sm" data-id="4" data-act="btn_clear" onClick={eventHandle}>지우기</Button></Col>
+											</Row>
+											<Row className="mt-3">
+												<Col lg={1} className="align-content-center">다섯번째 버튼</Col>
+												<Col>
+													<Row>
+														<Form.Group as={Col} lg={6}>
+															<Form.Control size="sm" name="link_name_5" id="link_name_5" placeholder='버튼 이름 입력, 한글 10자 제한' />
+														</Form.Group>	
+														<Form.Group as={Col} lg={6}>
+															<Form.Control size="sm" name="link_url_mobile_5" id="link_url_mobile_5" placeholder='Mobile URL을 입력하세요. 영문, 특수문자 200자 제한' />
+														</Form.Group>	
+													</Row>
+													<Row className="mt-2">
+														<Form.Group as={Col} lg={6}>
+															<Form.Control size="sm" name="link_type_5" id="link_type_5" placeholder='버튼 형태 지정값, 웹링크(WL)만 사용' />
+														</Form.Group>	
+														<Form.Group as={Col} lg={6}>
+															<Form.Control size="sm" name="link_url_pc_5" id="link_url_pc_5" placeholder='PC URL을 입력하세요. 영문, 특수문자 200자 제한' />
+														</Form.Group>	
+													</Row>
+												</Col>
+												<Col lg={1}><Button variant="outline-dark" size="sm" data-id="5" data-act="btn_clear" onClick={eventHandle}>지우기</Button></Col>
+											</Row>
 										</td>
 									</tr>
 								</tbody>
@@ -825,7 +902,7 @@ const Push = () => {
 											</Row>
 										</td>
 									</tr>
-									<tr>
+									<tr className={(messageType1 == "info")?"hide":""}>
 										<th scope='row'>야간광고 전송제한</th>
 										<td className="text-start">
 											<Row className="align-items-center" xs="auto">
@@ -1035,12 +1112,12 @@ const Push = () => {
 											<Form.Control type="text" placeholder="최대 50자 입력 가능합니다." name="title" id="title" />
 										</td>
 									</tr>
-									<tr>
+									{/*<tr className="hide">
 										<th scope='row'>강조 제목</th>
 										<td className="text-start">
 											<Form.Control type="text" placeholder="최대 50자 입력 가능합니다." name="emtitle" id="emtitle"/>
 										</td>
-									</tr>
+									</tr>*/}
 									<tr>
 										<th scope='row'>웹뷰 링크</th>
 										<td className="text-start">
@@ -1099,7 +1176,7 @@ const Push = () => {
 											</Row>
 										</td>
 									</tr>
-									<tr>
+									<tr className={(messageType2 == "info")?"hide":""}>
 										<th scope='row'>야간광고 전송제한</th>
 										<td className="text-start">
 											<Row className="align-items-center" xs="auto">

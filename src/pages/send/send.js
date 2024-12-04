@@ -224,9 +224,9 @@ const Send = () => {
 			<Container as="main" fluid>
 				<Tabs defaultActiveKey="sendReport1" id="" className="custom__tab">
 
-					<Tab eventKey="sendReport1" title="푸시 발송이력">
+					<Tab eventKey="sendReport1" title="어드민 발송이력">
 						<div className="main__header">
-							<h2 className="main__header-title">푸시 발송이력</h2>	
+							<h2 className="main__header-title">어드민 발송이력</h2>	
 						</div>
 						{/* 발송 상태별 탭 */}
 						<div className="send__status-wrap">
@@ -363,9 +363,9 @@ const Send = () => {
 					</Tab>
 
 
-					<Tab eventKey="serverReport2" title="서버연동 발송이력">
+					<Tab eventKey="serverReport2" title="푸시서버 발송이력">
 						<div className="main__header">
-							<h2 className="main__header-title">서버연동 발송이력</h2>	
+							<h2 className="main__header-title">푸시서버 발송이력</h2>	
 						</div>
 						{/* 발송 상태별 탭 */}
 						<div className="send__status-wrap">
