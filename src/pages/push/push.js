@@ -580,7 +580,7 @@ const Push = () => {
 													checked={messageType1=="ad"}
 												/>
 											</div>
-											<small className="text-secondary-emphasis">※ 광고메시지는 푸시 메시지명, 제목에 “(광고)” 표시, 광고수신 동의자 발송, 야간시간(20:00~08:00) 전송 제한</small>
+											<small className="text-secondary-emphasis">※ 광고메시지는 푸시 메시지명, 제목에 “(광고)” 표시, 광고수신 동의자 발송, 야간시간(19:00~08:00) 전송 제한</small>
 										</td>
 									</tr>
 									<tr>
@@ -909,7 +909,7 @@ const Push = () => {
 												<Form.Group as={Col} className="d-inline-flex align-items-center">
 													<Form.Check
 														inline
-														label="야간 광고 전송제한  20:00 ~ 08:00   "
+														label="야간 광고 전송제한  19:00 ~ 08:00   "
 														name="limit_night"
 														type="radio"
 														value={"Y"}
@@ -1054,7 +1054,7 @@ const Push = () => {
 													checked={messageType2 == "ad"}
 												/>
 											</div>
-											<small className="text-secondary-emphasis">※ 광고메시지는 푸시 메시지명, 제목에 “(광고)” 표시, 광고수신 동의자 발송, 야간시간(20:00~08:00) 전송 제한</small>
+											<small className="text-secondary-emphasis">※ 광고메시지는 푸시 메시지명, 제목에 “(광고)” 표시, 광고수신 동의자 발송, 야간시간(19:00~08:00) 전송 제한</small>
 										</td>
 									</tr>
 									<tr>
@@ -1183,7 +1183,7 @@ const Push = () => {
 												<Form.Group as={Col} className="d-inline-flex align-items-center">
 													<Form.Check
 														inline
-														label="야간 광고 전송제한  20:00 ~ 08:00   "
+														label="야간 광고 전송제한  19:00 ~ 08:00   "
 														name="limit_night"
 														type="radio"
 														value={"Y"}
