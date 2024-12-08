@@ -108,9 +108,11 @@ const PopupPushTest = (opt) => {
 		else if(act_v == "goTest") {
 			Config.log("test send go!!");
 			let data = opt.data.sendInfo;
-			data["source_path"] = "test";
-			data["target_type"] = "E";
-			data["userList"] = selectedList;
+			data.set("limit_night", "N");
+			data.set("source_path", "test");
+			data.set("target_type", "E");
+			data.set("userList", JSON.stringify(selectedList));
+			//data["userList"] = selectedList;
 			Config.log(data);
 			pushInput.addPushQueue({
 				data:data,

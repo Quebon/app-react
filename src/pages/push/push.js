@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams } from 'react-router-dom';
 import Header from "./../../components/Header";
 import {
@@ -43,6 +43,8 @@ const Push = () => {
 	const {seq} = useParams();
 	const [today, setToday] = useState("");
 	const [baseNode, setBaseNode] = useState({object:null , name:""});	// 푸시메세지, 이미지 메세지 선택 정보
+
+	const uplodeFileRef = useRef();
 
 	const [showPushTest, setShowPushTest] = useState(false);	// 테스트발송 팝업
 	const [showExcel, setShowExcel] = useState(false);			// 엑셀 업로드 팝업
@@ -125,6 +127,11 @@ const Push = () => {
 		Config.log(data);
 	}
 
+	let respSearch = function(data) {
+		setUserList(data.list);
+		setTargetUserCount1(data.count);
+		Config.log(data);
+	}
 
 	const eventHandle = (ev) => {
 		let evo = ev.currentTarget;
@@ -198,13 +205,52 @@ const Push = () => {
 					alert("모든 정보를 규칙에 맞게 입력해야 발송 가능합니다.");
 				}
 			}
+			else if(act_v == "attach_image_push") {
+				let fo = document.querySelector("#image_push");
+				if(fo) {
+					fo.click();
+				}
+			}
+			else if(act_v == "remove_image_push") {
+				Config.log(uplodeFileRef);
+				//document.querySelector("figure").parentNode.removeChild(document.querySelector("figure"));
+				//let fo = document.querySelector("#image_push");
+				//if(fo) {
+				//	fo.current.value = "";
+				//}
+				let fo = document.querySelector("figure[data-id='upfile_1']");
+				if(fo) {
+					fo.parentNode.removeChild(fo);
+				}
+			}
 			else if(act_v == "send_test") {	// 테스트 전송하기
 				if(validation_req(base)) {
+					if (check_reserve_time(base.reserve_date2.value) == false) {
+						return;
+					}
 					const formData = new FormData(base);
+					formData.append("emtitle", formData.get("title"));
+					if(base.image_push) {
+						let files = Array.from(base.image_push.files);
+						if (files) {
+							const formData = new FormData();
+							files.map((file) => {
+								formData.append("files", file);
+							});
+						}
+					}
+					let time_v = formData.get("reserve_date2");
+					if(time_v != "") {
+						formData.set("reserve_date", formData.get("reserve_date") + " " + time_v);
+					}
+
+
 					const data = Object.fromEntries(formData.entries());
-					data["emtitle"] = data["title"];
+					//data["emtitle"] = data["title"];
+					Config.log("formdata is=>");
+					Config.log(formData);
 					Config.log(data);
-					pushTestData.sendInfo = data;
+					pushTestData.sendInfo = formData;
 					setShowPushTest(true);
 				}
 				else {
@@ -214,13 +260,36 @@ const Push = () => {
 			}
 			else if(act_v == "send_save") {	// 푸시 전송하기 저장.
 				if(validation(base)) {
-					const formData = new FormData(base);
-					const data = Object.fromEntries(formData.entries());
-					data["userList"] = userList;
-					data["emtitle"] = data["title"];
-					if(data["message_type"] == "info") {
-						data["limit_night"] = "N";
+
+					if (check_reserve_time(base.reserve_date2.value) == false) {
+						return;
 					}
+					const formData = new FormData(base);
+
+					if(base.image_push) {
+						let files = Array.from(base.image_push.files);
+						if (files) {
+							const formData = new FormData();
+							files.map((file) => {
+								formData.append("files", file);
+							});
+						}
+					}
+
+					formData.append("emtitle", formData.get("title"));
+					formData.append("userList", userList);
+					if(formData.get("message_type") == "info") {
+						formData.append("limit_night", "N");
+					}
+					else if(formData.get("message_type") == "ad") {
+						formData.append("limit_night", "Y");
+					}
+					const data = Object.fromEntries(formData.entries());
+					//data["userList"] = userList;
+					//data["emtitle"] = data["title"];
+					//if(data["message_type"] == "info") {
+					//	data["limit_night"] = "N";
+					//}
 					Config.log(data);
 					Config.log("send");
 					pushInput.addPushQueue({
@@ -311,7 +380,7 @@ const Push = () => {
 				if(base.id == "frmPushMsg") {
 					if(ev.target.value != "A") {
 						base.target_device.selectedIndex = 0;
-						base.target_device.setAttribute("disabled", "true");
+						base.target_device.setAttribute("disabled", true);
 					}
 					else {
 						base.target_device.removeAttribute("disabled");
@@ -322,7 +391,7 @@ const Push = () => {
 				else {
 					if(ev.target.value != "A") {
 						base.target_device.selectedIndex = 0;
-						base.target_device.setAttribute("disabled", "true");
+						base.target_device.setAttribute("disabled", true);
 					}
 					else {
 						base.target_device.removeAttribute("disabled");
@@ -422,6 +491,32 @@ const Push = () => {
 		ev.preventDefault();
 	};	
 
+	function getCurrentTime() {
+		const now = new Date();
+		const hours = String(now.getHours()).padStart(2, '0'); // 시간
+		const minutes = String(now.getMinutes()).padStart(2, '0'); // 분
+		//const seconds = String(now.getSeconds()).padStart(2, '0'); // 초
+	
+		return `${hours}:${minutes}`;
+	}
+
+	function check_reserve_time(hour_v) {
+		let rtn = true;
+		if(hour_v != null && hour_v != "") {
+
+		}
+		else {
+			hour_v = getCurrentTime();
+		}
+		if(hour_v >= "19:00" || hour_v <= "08:00") {
+			rtn = false;
+		}
+		if(rtn == false) {
+			alert('야간시간(19:00~08:00)에는 광고 발송이 제한됩니다.');
+		}
+		return rtn;
+	}
+
 	const validation_preview = (frm) => {
 		if(frm == null) return false;
 
@@ -439,6 +534,7 @@ const Push = () => {
 
 		return true;
     }
+
 
 	const validation_req = (frm) => {
 		if(frm == null) return false;
@@ -498,17 +594,18 @@ const Push = () => {
 		setBtnTemplateSaveFlag("disabled");
 	}
 
+
 	return(
 		<div className="wrapper">
 			<Container as="header">
 				<Header />	
 			</Container>
 			<Container as="main" fluid>
-				<Tabs defaultActiveKey="pushMsg" defaultActiveKey2="welcomeMsg" id="" className="custom__tab">
+				<Tabs defaultActiveKey="pushMsg" id="" className="custom__tab">
 
 					<Tab eventKey="pushMsg" title="푸시 메시지">
 						<form name="frmPushMsg" id="frmPushMsg" data-id="push">
-						<input type="Hidden" name="source_path" id="source_path" value="system"/>
+						<input type="Hidden" name="source_path" id="source_path" value={"system"}/>
 						<div className="main__header">
 							<h2 className="main__header-title">푸시 메시지</h2>	
 						</div>
@@ -521,7 +618,7 @@ const Push = () => {
 											<Form.Select aria-label="" name="app_id" id="app_id">
 												{
 													appList.map((item, index) =>
-														<option key={item.seq} selected={item.app_id=='com.quebon.tv'?'true':'false'} value={item.app_id}>{item.app_name}</option>
+														<option key={item.seq} selected={item.app_id=='com.quebon.tv'?true:false} value={item.app_id}>{item.app_name}</option>
 													)
 												}
 											</Form.Select>
@@ -618,14 +715,14 @@ const Push = () => {
 														checked={targetType1 == "A"}
 													/>
 													<Form.Select aria-label="" className="d-inline-block" name="target_device" id="target_device" data-act="target_device" onChange={eventHandle}>
-														<option value="">대상 선택</option>
-														<option value="all">전체 앱 사용자</option>
-														<option value="aos_all">Android OS 전체</option>
-														<option value="aos_n">Android OS 비로그인</option>
-														<option value="aos_y">Android OS 로그인</option>
-														<option value="ios_all">IOS 전체</option>
-														<option value="ios_n">IOS 비로그인</option>
-														<option value="ios_y">IOS 로그인</option>
+														<option value={""}>대상 선택</option>
+														<option value={"all"}>전체 앱 사용자</option>
+														<option value={"aos_all"}>Android OS 전체</option>
+														<option value={"aos_n"}>Android OS 비로그인</option>
+														<option value={"aos_y"}>Android OS 로그인</option>
+														<option value={"ios_all"}>IOS 전체</option>
+														<option value={"ios_n"}>IOS 비로그인</option>
+														<option value={"ios_y"}>IOS 로그인</option>
 													</Form.Select>
 												</Col>
 												<Col>
@@ -642,7 +739,7 @@ const Push = () => {
 													/>
 													<Button variant="outline-dark" size="sm" data-act="add_excel" onClick={eventHandle}><RiUploadLine /> 파일 첨부</Button>
 												</Col>
-												<Col className="hide">
+												<Col className="">
 													<Form.Check
 														inline
 														label="조건 검색"
@@ -720,12 +817,12 @@ const Push = () => {
 						<div className="table__wrap mt-2">
 							<Table bordered responsive className="table__view">
 								<tbody>
-									<tr className="hide">
+									<tr className="">
 										<th scope='row'>본문 이미지</th>
 										<td className="text-start">
 											<Row className="fileup__ui">
 												<Col className="col-auto">
-													<FileUpload imageWidth={160} imageHeight={106} maxFileSize={1} inputName="image_push2"></FileUpload>
+													<FileUpload ref={uplodeFileRef} imageWidth={160} imageHeight={106} maxFileSize={1} accept='image/png, image/jpeg, image/jpg' inputName="image_push"></FileUpload>
 												</Col>
 												<Col className="col-auto">
 													<Button variant="outline-dark" size="sm" data-act="attach_image_push" onClick={eventHandle}>
@@ -897,7 +994,8 @@ const Push = () => {
 														id="send_type_2"
 														checked={sendType1 == "R"}
 													/>
-													<Form.Control type="date" className="w-auto"></Form.Control>
+													<Form.Control type="date" name="reserve_date" id="reserve_date" className="w-auto"></Form.Control>
+													<Form.Control type="time" name="reserve_date2" id="reserve_date2" className="w-auto"></Form.Control>
 												</Form.Group>
 											</Row>
 										</td>
@@ -905,7 +1003,8 @@ const Push = () => {
 									<tr className={(messageType1 == "info")?"hide":""}>
 										<th scope='row'>야간광고 전송제한</th>
 										<td className="text-start">
-											<Row className="align-items-center" xs="auto">
+											야간 광고 전송제한  19:00 ~ 08:00
+											<Row className="align-items-center hide" xs="auto">
 												<Form.Group as={Col} className="d-inline-flex align-items-center">
 													<Form.Check
 														inline
@@ -941,19 +1040,19 @@ const Push = () => {
 											<Row>
 												<Form.Group as={Col} lg={6}>
 													<Form.Select aria-label="" name="send_part_min" id="send_part_min">
-														<option value="0">지연 시간 선택</option>
-														<option value="1">1분</option>
-														<option value="10">10분</option>
-														<option value="20">20분</option>
-														<option value="30">30분</option>
+														<option value={"0"}>지연 시간 선택</option>
+														<option value={"1"}>1분</option>
+														<option value={"10"}>10분</option>
+														<option value={"20"}>20분</option>
+														<option value={"30"}>30분</option>
 													</Form.Select>
 												</Form.Group>
 												<Form.Group as={Col} lg={6}>
 													<Form.Select aria-label="" name="send_part_size" id="send_part_size">
-														<option value="0">분할 단위 선택</option>
-														<option value="100">100건</option>
-														<option value="1000">1000건</option>
-														<option value="10000">10000건</option>
+														<option value={"0"}>분할 단위 선택</option>
+														<option value={"100"}>100건</option>
+														<option value={"1000"}>1000건</option>
+														<option value={"10000"}>10000건</option>
 													</Form.Select>
 												</Form.Group>
 											</Row>
@@ -981,7 +1080,7 @@ const Push = () => {
 
 					<Tab eventKey="welcomeMsg" title="이미지 메시지">
 						<form name="frmWelcomeMsg" id="frmWelcomeMsg" data-id="welcome">
-							<input type="hidden" name="source_path" id="source_path" value="system"/>
+							<input type="hidden" name="source_path" id="source_path" value={"system"}/>
 							<input type="Hidden" name="target_type" id="target_type" value={targetType2}/>
 						<div className="main__header">
 							<h2 className="main__header-title">이미지 메시지</h2>	
@@ -995,7 +1094,7 @@ const Push = () => {
 											<Form.Select aria-label="" name="app_id" id="app_id">
 												{
 													appList.map((item, index) =>
-														<option key={item.seq} selected={item.app_id=='com.quebon.tv'?'true':'false'} value={item.app_id}>{item.app_name}</option>
+														<option key={item.seq} selected={item.app_id=='com.quebon.tv'?true:false} value={item.app_id}>{item.app_name}</option>
 													)
 												}
 											</Form.Select>
@@ -1080,14 +1179,14 @@ const Push = () => {
 										<td className="text-start">
 											<div id="target_number" className="mb-2">총 발송대상 : {targetUserCount2.toLocaleString()}명</div>
 											<Form.Select aria-label="" name="target_device" id="target_device" className="d-inline-block" data-act="target_device" onChange={eventHandle}>
-												<option value="">대상 선택</option>
-												<option value="all">전체 앱 사용자</option>
-												<option value="aos_all">Android OS 전체</option>
-												<option value="aos_n">Android OS 비로그인</option>
-												<option value="aos_y">Android OS 로그인</option>
-												<option value="ios_all">IOS 전체</option>
-												<option value="ios_n">IOS 비로그인</option>
-												<option value="ios_y">IOS 로그인</option>
+												<option value={""}>대상 선택</option>
+												<option value={"all"}>전체 앱 사용자</option>
+												<option value={"aos_all"}>Android OS 전체</option>
+												<option value={"aos_n"}>Android OS 비로그인</option>
+												<option value={"aos_y"}>Android OS 로그인</option>
+												<option value={"ios_all"}>IOS 전체</option>
+												<option value={"ios_n"}>IOS 비로그인</option>
+												<option value={"ios_y"}>IOS 로그인</option>
 											</Form.Select>
 										</td>
 									</tr>
@@ -1172,6 +1271,7 @@ const Push = () => {
 														checked={sendType2 == "R"}
 													/>
 													<Form.Control type="date" name="reserve_date" id="reserve_date" className="w-auto"></Form.Control>
+													<Form.Control type="time" name="reserve_date2" id="reserve_date2" className="w-auto"></Form.Control>
 												</Form.Group>
 											</Row>
 										</td>
@@ -1179,7 +1279,8 @@ const Push = () => {
 									<tr className={(messageType2 == "info")?"hide":""}>
 										<th scope='row'>야간광고 전송제한</th>
 										<td className="text-start">
-											<Row className="align-items-center" xs="auto">
+											야간 광고 전송제한  19:00 ~ 08:00
+											<Row className="align-items-center hide" xs="auto">
 												<Form.Group as={Col} className="d-inline-flex align-items-center">
 													<Form.Check
 														inline
@@ -1258,8 +1359,12 @@ const Push = () => {
 			<PopupPushTest isShow={showPushTest} callback={respTest} close={setShowPushTest} data={pushTestData}></PopupPushTest>
 			<PopupPushExcelUpload isShow={showExcel} callback={respExcel} close={setShowExcel}></PopupPushExcelUpload>
 			<PopupPushPreview isShow={previewModal} close={setPreviewModal} data={pushTestData}></PopupPushPreview>
-			<PopupTemplateList isShow={showTemplateList} close={setShowTemplateList} callback={respTemplate}></PopupTemplateList>
-			<PopupSearchPushTarget isShow={showSearchPushTarget} close={setShowSearchPushTarget} callback={respTemplate}></PopupSearchPushTarget>
+			{ showTemplateList &&
+				<PopupTemplateList isShow={showTemplateList} close={setShowTemplateList} callback={respTemplate}></PopupTemplateList>
+			}
+			{ showSearchPushTarget &&
+				<PopupSearchPushTarget isShow={showSearchPushTarget} close={setShowSearchPushTarget} callback={respSearch}></PopupSearchPushTarget>
+			}
 			
 
 		</div>

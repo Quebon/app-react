@@ -57,6 +57,11 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 		rerender();
 	};
 
+	const clearList = () => {
+		setList([]);
+		rerender();
+	};
+
 	const handleDelete = (e: any, i: number) => {
 		list.splice(i, 1);
 		rerender();
@@ -72,12 +77,14 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 			for (var i = 0; i < files.length; i++) {
 				setList([]);
 				list.push(files[i]);
-				const file = imgRef.current.files[0];
-				const reader = new FileReader();
-				reader.readAsDataURL(file);
-				reader.onloadend = () => {
-					setImgFile(reader.result);
-				};				
+				if(imgRef) {
+					const file = imgRef.current.files[0];
+					const reader = new FileReader();
+					reader.readAsDataURL(file);
+					reader.onloadend = () => {
+						setImgFile(reader.result);
+					};
+				}
 			}
 			rerender();
 		}
@@ -120,7 +127,7 @@ const FileUpload: React.FunctionComponent<FileUploadProps> = ({
 	const renderFileInput = () => {
 		if (!(maxFileCount > 0) || list.length < maxFileCount) {
 			return (
-				<Form.Control type="file" name={inputName != ""?inputName:"upFile"} id={inputName != ""?inputName:"upFile"} onChange={handleOnChange} accept={accept} className="hide" ref={imgRef}/>
+				<Form.Control type="file"  name={inputName != ""?inputName:"upFile"} id={inputName != ""?inputName:"upFile"} onChange={handleOnChange} accept={accept} className="hide" ref={imgRef}/>
 			);
 		}
 	};

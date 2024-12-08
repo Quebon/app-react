@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useLayoutEffect } from 'react';
 import {
 	Container,
 	Row,
@@ -28,27 +28,24 @@ const PopupSearchPushTarget = (opt) => {
 	//Config.log("PopupSearchPushTarget opt-->");
 	//Config.log(opt);
 
-	const [userList, setUserList] = useState({list:[], totalCount:0});
-
-
+	const [userList, setUserList] = useState([]);
 
 	useEffect( () => {
 		Config.log("refresh 1");
-		//load(1);
-	}, [userList]);
+		reqList(1);
+		//const json =  pushInput.getPushTargetList({data:{}});
+	}, []);
+
 
 	const selfClose = function() {
 		opt.close(false);
 	};
 
 
-	const load = (pg) => {
-		pushInput.getPushTargetList({data:{}, callback:function(json) {
-			if(json) {
-				Config.log("getPushTargetList result=>");
-				Config.log(json);
-			}
-		}});
+	const reqList = async (pg) => {
+		const resp =  pushInput.getPushTargetList({data:{}});
+		Config.log("getPushTargetList response=>");
+		resp.then( (data) => setUserList(data));
 	}
 
 
@@ -56,15 +53,21 @@ const PopupSearchPushTarget = (opt) => {
 		let evo = ev.currentTarget;
 		let act_v = evo.getAttribute("data-act");
 		console.log("act = " + act_v);
-		if(act_v == "search") {
-			load(1);
+		if(act_v == "select") {
+			var key = evo.getAttribute("data-index");
+			Config.log("key=" + key);
+			let uItem = userList[key];
+			if(uItem.contentList) {
+				let data = uItem.contentList;
+				const user_ids = data.map(item => item.userId).join(', ');
+				Config.log(user_ids);
+				opt.callback({list:user_ids, count:data.length});
+				selfClose();
+			}
 		}
 		else if(act_v == "close") {
 			//isShow = false;
 			selfClose();
-		}
-		else if(act_v == "selected") {
-			var key = evo.getAttribute("data-index");
 		}
 	};
 
@@ -115,16 +118,21 @@ const PopupSearchPushTarget = (opt) => {
 									</tr>
 								</thead>
 								<tbody>
-									<tr>
-										<td>1</td>
-										<td>킨더 주니어 </td>
-										<td>600</td>
-										<td>홍길동</td>
-										<td>2022-11-23</td>
-										<td>
-											<Button size="sm" variant="outline-dark">선택</Button>
-										</td>
-									</tr>
+									{
+										userList.map( (item, index) =>
+											<tr>
+												<td>{index - 0 + 1}</td>
+												<td>{(item.name != null)?item.name:''} </td>
+												<td>{item.contentList.length.toLocaleString()}</td>
+												<td>{item.register}</td>
+												<td>{item.registerAt}</td>
+												<td>
+													<Button size="sm" variant="outline-dark" data-index={index} data-act="select" onClick={eventHandle}>선택</Button>
+												</td>
+											</tr>
+
+										)
+									}
 								</tbody>
 							</Table>
 							<div className="table__pagination hide">
