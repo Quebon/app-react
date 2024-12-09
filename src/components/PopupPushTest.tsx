@@ -118,11 +118,23 @@ const PopupPushTest = (opt) => {
 				data:data,
 				callback:function(json) {
 					Config.log(json);
+	
+
 					if(json.seq > 0) {
-						alert("발송이 성공하였습니다.");
+						if(data.get("send_type") == "R") {
+							alert("발송 예약이 성공하였습니다.");
+						}
+						else {
+							alert("발송이 성공하였습니다.");
+						}
 					}
 					else {
-						alert("발송에 실패하였습니다.\n다시 시도해주세요.");
+						if(data.get("send_type") == "R") {
+							alert("발송 예약이 실패하였습니다.\n다시 시도해주세요.");
+						}
+						else {
+							alert("발송이 실패하였습니다.\n다시 시도해주세요.");
+						}
 					}
 				}
 			});

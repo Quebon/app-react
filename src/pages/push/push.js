@@ -154,6 +154,9 @@ const Push = () => {
 			if(act_v == "openTemplage") {	// 템플릿 불러오기. 
 				setShowTemplateList(true);				
 			}
+			else if(act_v == "reset") {
+				clearForm(base);
+			}
 			else if(act_v == "add_excel") {	// 엑셀로 대상 추가하기
 				if(base.id == "frmPushMsg") {
 					setTargetType1("E");
@@ -212,12 +215,7 @@ const Push = () => {
 				}
 			}
 			else if(act_v == "remove_image_push") {
-				Config.log(uplodeFileRef);
-				//document.querySelector("figure").parentNode.removeChild(document.querySelector("figure"));
-				//let fo = document.querySelector("#image_push");
-				//if(fo) {
-				//	fo.current.value = "";
-				//}
+				base.image_push.value = "";
 				let fo = document.querySelector("figure[data-id='upfile_1']");
 				if(fo) {
 					fo.parentNode.removeChild(fo);
@@ -260,7 +258,6 @@ const Push = () => {
 			}
 			else if(act_v == "send_save") {	// 푸시 전송하기 저장.
 				if(validation(base)) {
-
 					if (check_reserve_time(base.reserve_date2.value) == false) {
 						return;
 					}
@@ -269,6 +266,7 @@ const Push = () => {
 					if(base.image_push) {
 						let files = Array.from(base.image_push.files);
 						if (files) {
+							alert(files);
 							const formData = new FormData();
 							files.map((file) => {
 								formData.append("files", file);
@@ -296,10 +294,21 @@ const Push = () => {
 						data:formData,
 						callback:function(json) {
 							if(json.seq > 0) {
-								alert("발송이 성공하였습니다.");
+								if(formData.get("send_type") == "R") {
+									alert("발송 예약이 성공하였습니다.");
+								}
+								else {
+									alert("발송이 성공하였습니다.");
+								}
+								clearForm(base);
 							}
 							else {
-								alert("발송에 실패하였습니다.\n다시 시도해주세요.");
+								if(formData.get("send_type") == "R") {
+									alert("발송 예약이 실패하였습니다.\n다시 시도해주세요.");
+								}
+								else {
+									alert("발송이 실패하였습니다.\n다시 시도해주세요.");
+								}
 							}
 						}
 					});
@@ -463,6 +472,20 @@ const Push = () => {
 				else {
 					setSendType2(ev.target.value);
 				}
+				if(ev.target.value == "D") {
+					base.reserve_date.value = "";
+					base.reserve_date2.value = "";
+				}
+			}
+			else if(act_v == "change_researve_dt") {
+				if(base.id == "frmPushMsg") {
+					setSendType1("R");
+					base.querySelector("#send_type_2").checked = true;
+				}
+				else {
+					setSendType2("R");
+					base.querySelector("#send_type_12").checked = true;
+				}
 			}
 			else if(act_v == "limit_night") {	// 야간 광고 제한 정보 변경.
 				console.log(ev.target.value);
@@ -491,6 +514,33 @@ const Push = () => {
 		ev.preventDefault();
 	};	
 
+	function clearForm(base) {
+		base.reset();
+		if(base.id == "frmPushMsg") {
+			base.message_type_1.checked = true;
+			base.send_type_1.checked = true;
+			base.title.value = "";
+			base.content.value = "";
+			setTargetType1("A");
+			setSendType1("D");
+			setMessageType1("info");
+			setTargetUserCount1(0);
+			base.image_push.value = "";
+			let fo = document.querySelector("figure[data-id='upfile_1']");
+			if(fo) {
+				fo.parentNode.removeChild(fo);
+			}
+		}
+		else {
+			base.message_type_11.checked = true;
+			base.send_type_11.checked = true;
+			setTargetType2("A");
+			setSendType2("D");
+			setMessageType2("info");
+			setTargetUserCount2(0);
+		}
+	}
+
 	function getCurrentTime() {
 		const now = new Date();
 		const hours = String(now.getHours()).padStart(2, '0'); // 시간
@@ -501,18 +551,22 @@ const Push = () => {
 	}
 
 	function check_reserve_time(hour_v) {
+		let base = baseNode.object;
 		let rtn = true;
+		if(base.message_type.value == "info") {
+			return rtn;
+		}
 		if(hour_v != null && hour_v != "") {
 
 		}
 		else {
 			hour_v = getCurrentTime();
 		}
-		if(hour_v >= "19:00" || hour_v <= "08:00") {
+		if(hour_v >= "20:00" || hour_v <= "08:00") {
 			rtn = false;
 		}
 		if(rtn == false) {
-			alert('야간시간(19:00~08:00)에는 광고 발송이 제한됩니다.');
+			alert('야간시간(20:00~08:00)에는 광고 발송이 제한됩니다.');
 		}
 		return rtn;
 	}
@@ -677,7 +731,7 @@ const Push = () => {
 													checked={messageType1=="ad"}
 												/>
 											</div>
-											<small className="text-secondary-emphasis">※ 광고메시지는 푸시 메시지명, 제목에 “(광고)” 표시, 광고수신 동의자 발송, 야간시간(19:00~08:00) 전송 제한</small>
+											<small className="text-secondary-emphasis">※ 광고메시지는 푸시 메시지명, 제목에 “(광고)” 표시, 광고수신 동의자 발송, 야간시간(20:00~08:00) 전송 제한</small>
 										</td>
 									</tr>
 									<tr>
@@ -994,8 +1048,8 @@ const Push = () => {
 														id="send_type_2"
 														checked={sendType1 == "R"}
 													/>
-													<Form.Control type="date" name="reserve_date" id="reserve_date" className="w-auto"></Form.Control>
-													<Form.Control type="time" name="reserve_date2" id="reserve_date2" className="w-auto"></Form.Control>
+													<Form.Control type="date" name="reserve_date" id="reserve_date" className="w-auto" data-act="change_researve_dt" onChange={eventHandle}></Form.Control>
+													<Form.Control type="time" name="reserve_date2" id="reserve_date2" className="w-auto" data-act="change_researve_dt" onChange={eventHandle}></Form.Control>
 												</Form.Group>
 											</Row>
 										</td>
@@ -1003,12 +1057,12 @@ const Push = () => {
 									<tr className={(messageType1 == "info")?"hide":""}>
 										<th scope='row'>야간광고 전송제한</th>
 										<td className="text-start">
-											야간 광고 전송제한  19:00 ~ 08:00
+											야간 광고 전송제한  20:00 ~ 08:00
 											<Row className="align-items-center hide" xs="auto">
 												<Form.Group as={Col} className="d-inline-flex align-items-center">
 													<Form.Check
 														inline
-														label="야간 광고 전송제한  19:00 ~ 08:00   "
+														label="야간 광고 전송제한  20:00 ~ 08:00   "
 														name="limit_night"
 														type="radio"
 														value={"Y"}
@@ -1153,7 +1207,7 @@ const Push = () => {
 													checked={messageType2 == "ad"}
 												/>
 											</div>
-											<small className="text-secondary-emphasis">※ 광고메시지는 푸시 메시지명, 제목에 “(광고)” 표시, 광고수신 동의자 발송, 야간시간(19:00~08:00) 전송 제한</small>
+											<small className="text-secondary-emphasis">※ 광고메시지는 푸시 메시지명, 제목에 “(광고)” 표시, 광고수신 동의자 발송, 야간시간(20:00~08:00) 전송 제한</small>
 										</td>
 									</tr>
 									<tr>
@@ -1270,8 +1324,8 @@ const Push = () => {
 														data-act="send_type"
 														checked={sendType2 == "R"}
 													/>
-													<Form.Control type="date" name="reserve_date" id="reserve_date" className="w-auto"></Form.Control>
-													<Form.Control type="time" name="reserve_date2" id="reserve_date2" className="w-auto"></Form.Control>
+													<Form.Control type="date" name="reserve_date" id="reserve_date" className="w-auto" data-act="change_researve_dt" onChange={eventHandle}></Form.Control>
+													<Form.Control type="time" name="reserve_date2" id="reserve_date2" className="w-auto" data-act="change_researve_dt" onChange={eventHandle}></Form.Control>
 												</Form.Group>
 											</Row>
 										</td>
@@ -1279,12 +1333,12 @@ const Push = () => {
 									<tr className={(messageType2 == "info")?"hide":""}>
 										<th scope='row'>야간광고 전송제한</th>
 										<td className="text-start">
-											야간 광고 전송제한  19:00 ~ 08:00
+											야간 광고 전송제한  20:00 ~ 08:00
 											<Row className="align-items-center hide" xs="auto">
 												<Form.Group as={Col} className="d-inline-flex align-items-center">
 													<Form.Check
 														inline
-														label="야간 광고 전송제한  19:00 ~ 08:00   "
+														label="야간 광고 전송제한  20:00 ~ 08:00   "
 														name="limit_night"
 														type="radio"
 														value={"Y"}
