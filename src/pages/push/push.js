@@ -293,7 +293,7 @@ const Push = () => {
 					Config.log(data);
 					Config.log("send");
 					pushInput.addPushQueue({
-						data:data,
+						data:formData,
 						callback:function(json) {
 							if(json.seq > 0) {
 								alert("발송이 성공하였습니다.");
