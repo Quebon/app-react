@@ -19,6 +19,26 @@
         }
       ],
       "destination": "https://dev-push-api.quebon.tv/api/:path*"
+    },
+    {
+      "source": "/assets/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "push.quebon.tv"
+        }
+      ],
+      "destination": "https://push-api.quebon.tv/assets/:path*"
+    },
+    {
+      "source": "/assets/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "dev-push.quebon.tv"
+        }
+      ],
+      "destination": "https://dev-push-api.quebon.tv/assets/:path*"
     }
   ]
 }
