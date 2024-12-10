@@ -1062,7 +1062,7 @@ const Push = () => {
 													<Form.Check
 														inline
 														label="야간 광고 전송제한  20:00 ~ 08:00   "
-														name="limit_night"
+														name="limit_night_1"
 														type="radio"
 														value={"Y"}
 														id="limit_night_1"
@@ -1076,7 +1076,7 @@ const Push = () => {
 														inline
 														value={"N"}
 														label="제한 시간 해제"
-														name="limit_night"
+														name="limit_night_1"
 														type="radio"
 														id="limit_night_2"
 														data-act="limit_night"
@@ -1338,7 +1338,7 @@ const Push = () => {
 													<Form.Check
 														inline
 														label="야간 광고 전송제한  20:00 ~ 08:00   "
-														name="limit_night"
+														name="limit_night_2"
 														type="radio"
 														value={"Y"}
 														onChange={eventHandle}
@@ -1353,7 +1353,7 @@ const Push = () => {
 														inline
 														value={"N"}
 														label="제한 시간 해제"
-														name="limit_night"
+														name="limit_night_2"
 														type="radio"
 														id="limit_night_12"
 														onChange={eventHandle}
