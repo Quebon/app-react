@@ -295,7 +295,6 @@ const Push = () => {
 					//}
 					Config.log(data);
 					Config.log("send");
-					return;
 					pushInput.addPushQueue({
 						data:formData,
 						callback:function(json) {
