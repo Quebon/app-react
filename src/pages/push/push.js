@@ -850,13 +850,13 @@ const Push = () => {
 													type="checkbox"
 													id="check_contents"
 													value={"Y"}
-													maxLength={500}
+													maxLength={1500}
 													onChange={eventHandle}
 													data-act="check_contents"
 													checked={checkContents == true}
 												/>
 											</Form.Group>
-											<div className="text-end">{contentLen.toLocaleString()}자/ 500자 </div>
+											<div className="text-end">{contentLen.toLocaleString()}자/ 1500자 </div>
 										</td>
 									</tr>
 								</tbody>
@@ -1087,7 +1087,7 @@ const Push = () => {
 											</Row>
 										</td>
 									</tr>
-									<tr>
+									<tr className="hide">
 										<th scope='row'>분할 발송</th>
 										<td className="text-start">
 											<Row>
@@ -1364,7 +1364,7 @@ const Push = () => {
 											</Row>
 										</td>
 									</tr>
-									<tr>
+									<tr className="hide">
 										<th scope='row'>분할 발송</th>
 										<td className="text-start">
 											<Row>
