@@ -266,7 +266,6 @@ const Push = () => {
 					if(base.image_push) {
 						let files = Array.from(base.image_push.files);
 						if (files) {
-							alert(files);
 							const formData = new FormData();
 							files.map((file) => {
 								formData.append("files", file);
