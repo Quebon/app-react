@@ -275,7 +275,7 @@ const Push = () => {
 					}
 
 					formData.append("emtitle", formData.get("title"));
-					formData.append("userList", userList);
+					formData.append("userList", JSON.stringify(userList));
 					if(formData.get("message_type") == "info") {
 						formData.append("limit_night", "N");
 					}
