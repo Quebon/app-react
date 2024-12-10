@@ -48,7 +48,7 @@ const PopupPushExcelUpload = (opt) => {
 			}
 			else if(act_v == "accept") {
 				opt.callback(fileInfo);
-				opt.close(false);
+				selfClose();
 			}
 		}
 		else if(ev.type == "change") {
