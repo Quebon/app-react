@@ -273,6 +273,12 @@ const Push = () => {
 						}
 					}
 
+					let r_1 = formData.get("reserve_date");
+					let r_2 = formData.get("reserve_date2");
+					if(r_1 != "" && r_2 != "") {
+						formData.set("reserve_date", r_1 + " " + r_2);
+					}
+
 					formData.append("emtitle", formData.get("title"));
 					formData.append("userList", JSON.stringify(userList));
 					if(formData.get("message_type") == "info") {
@@ -289,6 +295,7 @@ const Push = () => {
 					//}
 					Config.log(data);
 					Config.log("send");
+					return;
 					pushInput.addPushQueue({
 						data:formData,
 						callback:function(json) {
