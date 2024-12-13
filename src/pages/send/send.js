@@ -319,7 +319,7 @@ const Send = () => {
 										<th scope='col'>ID</th>
 										<th scope='col'>발송(예약)일시</th>
 										<th scope='col'>앱이름</th>
-										<th scope='col'>싱태</th>
+										<th scope='col'>상태</th>
 										<th scope='col'>소스</th>
 										<th scope='col'>대상</th>
 										<th scope='col'>메시지</th>
@@ -450,7 +450,7 @@ const Send = () => {
 										<th scope='col'>ID</th>
 										<th scope='col'>발송(예약)일시</th>
 										<th scope='col'>앱이름</th>
-										<th scope='col'>싱태</th>
+										<th scope='col'>상태</th>
 										<th scope='col'>소스</th>
 										<th scope='col'>대상</th>
 										<th scope='col'>메시지</th>
@@ -471,7 +471,7 @@ const Send = () => {
 												<td>{item.send_date_str?item.send_date_str:item.reserve_date_str}</td>
 												<td>{item.app_name}</td>
 												<span className={"send__status " + Config.getPushStatuCss(item.status)}><RiCircleFill />{Config.getPushStatuName(item.status)}</span>
-												<td>{Config.getSourcePathName(item.source_path)}</td>
+												<td>{Config.getSourcePathName(item.source_path)} ({item.template_code})</td>
 												<td>{item.name}({item.email})</td>
 												<td className="text-start"><div className="text-truncate " >{item.title}</div></td>
 												<td>{item.count_total.toLocaleString()}</td>
